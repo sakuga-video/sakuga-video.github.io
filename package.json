@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "express": "^4.17.1",
     "http-proxy-middleware": "^0.19.1"
   },
   "devDependencies": {},
@@ -19,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/cypressf/animatedgif.video-backend/issues"
   },
-  "homepage": "https://github.com/cypressf/animatedgif.video-backend#readme"
+  "homepage": "https://github.com/cypressf/animatedgif.video-backend#readme",
+  "engines": {
+    "node": "12.4.0"
+  }
 }
