@@ -12,7 +12,7 @@
             const video = document.querySelector('video');
 
             function getRandomVideo() {
-                const url = 'http://localhost:3000/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
+                const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
                 return fetch(url).then(response => response.json().then(data => data[0].file_url));
             }
 
