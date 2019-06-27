@@ -1,0 +1,23 @@
+{
+  "name": "animatedgif-video-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "http-proxy-middleware": "^0.19.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cypressf/animatedgif.video-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cypressf/animatedgif.video-backend/issues"
+  },
+  "homepage": "https://github.com/cypressf/animatedgif.video-backend#readme"
+}
