@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style>
+            body, html {
+                margin:0;
+                padding:0;
+                background:#000;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
     </head>
     <body>
         <video id="myvideo" width="100%" autoplay muted>
@@ -19,6 +31,9 @@
                     video.play();
                 });
             });
+            video.addEventListener('dblclick', (event) => {
+                video.requestFullscreen();
+            })
             getRandomVideo().then(src => {
                 video.src = src;
                 video.play();
