@@ -43,28 +43,24 @@
             .material-icons.md-light {
                 color: rgba(255, 255, 255, 1);
             }
-            .fade-out {
+            .fade-out #controls {
                 display: block;
                 visibility: hidden;
                 opacity: 0;
 
-                -webkit-transition: visibility 1.5s, opacity 1.5s;
-                    -moz-transition: visibility 1.5s, opacity 1.5s;
-                    -ms-transition: visibility 1.5s, opacity 1.5s;
-                    -o-transition: visibility 1.5s, opacity 1.5s;
-                        transition: visibility 1.5s, opacity 1.5s;
-
-                /* Wait a moment before fading out the control bar */
-                -webkit-transition-delay: 2s;
-                    -moz-transition-delay: 2s;
-                    -ms-transition-delay: 2s;
-                    -o-transition-delay: 2s;
-                        transition-delay: 2s;
+                -webkit-transition: visibility 0.5s, opacity 0.5s;
+                    -moz-transition: visibility 0.5s, opacity 0.5s;
+                    -ms-transition: visibility 0.5s, opacity 0.5s;
+                    -o-transition: visibility 0.5s, opacity 0.5s;
+                        transition: visibility 0.5s, opacity 0.5s;
+            }
+            .fade-out {
+                cursor: none;
             }
         </style>
     </head>
     <body>
-        <div id="videocontainer">
+        <div id="videocontainer" class="fade-out">
             <video autoplay muted>
                 <source type="video/mp4">
                 Your browser does not support mp4 video.

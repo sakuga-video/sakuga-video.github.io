@@ -63,16 +63,43 @@ playpauseButton.addEventListener('click', e => {
     else video.pause();
 });
 nextButton.addEventListener('click', playNext);
-videoContainer.addEventListener('mouseout', () => {
-    controls.classList.add('fade-out')
-    console.log("test fade out");
-});
 
-videoContainer.addEventListener('mouseover', () => {
-    controls.classList.remove('fade-out');
-    console.log("come back");
-});
 getRandomVideo().then(src => {
     video.src = src;
     video.play();
 })
+
+var userActivity, activityCheck, inactivityTimeout;
+
+videoContainer.addEventListener('mousemove', function(){
+    userActivity = true;
+});
+
+activityCheck = setInterval(function() {
+
+  // Check to see if the mouse has been moved
+  if (userActivity) {
+
+    // Reset the activity tracker
+    userActivity = false;
+
+    // If the user state was inactive, set the state to active
+    if (videoContainer.classList.contains('fade-out')) {
+      videoContainer.classList.remove('fade-out');
+    }
+
+    // Clear any existing inactivity timeout to start the timer over
+    clearTimeout(inactivityTimeout);
+
+    // In X seconds, if no more activity has occurred 
+    // the user will be considered inactive
+    inactivityTimeout = setTimeout(function() {
+      // Protect against the case where the inactivity timeout can trigger
+      // before the next user activity is picked up  by the 
+      // activityCheck loop.
+      if (!userActivity && !videoContainer.classList.contains('fade-out')) {
+        videoContainer.classList.add('fade-out');
+      }
+    }, 1000);
+  }
+}, 250);
