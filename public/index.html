@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <style>
-            body, html, video {
+            body, html, video, #videocontainer {
                 margin:0;
                 padding:0;
                 background:#000;
@@ -22,39 +25,68 @@
             }
             #controls {
                 z-index: 2147483647;
+                display: block;
+                position: fixed;
+                top: 50%;
+                list-style: none;
             }
+            #controls button {
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                background: none;
+                border: none;
+                outline: none;
+            }
+            .material-icons.md-48 {
+                font-size: 48px;
+            }
+            .material-icons.md-light {
+                color: rgba(255, 255, 255, 1);
+            }
+            
         </style>
     </head>
     <body>
-        <video autoplay muted>
-            <source type="video/mp4">
-            Your browser does not support mp4 video.
-        </video>
-        <ul id="controls">
-            <li><button id="fullscreen" type="button">Fullscreen</button></li>
-            <li><button id="playpause" type="button">Play/Pause</button></li>
-        </ul>
+        <div id="videocontainer">
+            <video autoplay muted>
+                <source type="video/mp4">
+                Your browser does not support mp4 video.
+            </video>
+            <ul id="controls">
+                <li><button id="fullscreen" type="button"><i class="material-icons md-light md-48">fullscreen</i></button></li>
+                <li><button id="playpause" type="button"><i class="material-icons md-light md-48">pause</i></button></li>
+                <li><button id="next" type="button"><i class="material-icons md-light md-48">skip_next</i></button></li>
+            </ul>
+        </div>
+
         <script>
             const video = document.querySelector('video');
+            const videoContainer = document.querySelector('#videocontainer');
             const fullscreenButton = document.querySelector('#fullscreen');
             const playpauseButton = document.querySelector('#playpause');
+            const nextButton = document.querySelector('#next');
 
             function getRandomVideo() {
                 const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
                 return fetch(url).then(response => response.json().then(data => data[0].file_url));
             }
-            video.addEventListener('ended', (event) => {
+            function playNext() {
                 getRandomVideo().then(src => {
                     video.src = src;
                     video.play();
                 });
-            });
+            }
+
+            video.addEventListener('ended', playNext);
             var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
+            if (!fullScreenEnabled) {
+                fullscreenButton.style.display = 'none';
+            }
             var isFullScreen = function() {
                 return !!(document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement || document.fullscreenElement);
             }
             var setFullscreenData = function(state) {
-                video.setAttribute('data-fullscreen', !!state);
+                videoContainer.setAttribute('data-fullscreen', !!state);
             }
             var handleFullscreen = function() {
                 if (isFullScreen()) {
@@ -65,10 +97,10 @@
                     setFullscreenData(false);
                 }
                 else {
-                    if (video.requestFullscreen) video.requestFullscreen();
-                    else if (video.mozRequestFullScreen) video.mozRequestFullScreen();
-                    else if (video.webkitRequestFullScreen) video.webkitRequestFullScreen();
-                    else if (video.msRequestFullscreen) video.msRequestFullscreen();
+                    if (videoContainer.requestFullscreen) videoContainer.requestFullscreen();
+                    else if (videoContainer.mozRequestFullScreen) videoContainer.mozRequestFullScreen();
+                    else if (videoContainer.webkitRequestFullScreen) videoContainer.webkitRequestFullScreen();
+                    else if (videoContainer.msRequestFullscreen) videoContainer.msRequestFullscreen();
                     setFullscreenData(true);
                 }
             }
@@ -89,6 +121,7 @@
                 if (video.paused || video.ended) video.play();
                 else video.pause();
             });
+            nextButton.addEventListener('click', playNext);
             getRandomVideo().then(src => {
                 video.src = src;
                 video.play();
