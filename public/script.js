@@ -5,9 +5,11 @@ const playpauseButton = document.querySelector('#playpause');
 const nextButton = document.querySelector('#next');
 const controls = document.querySelector('#controls');
 
-function getRandomVideo() {
+async function getRandomVideo() {
     const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
-    return fetch(url).then(response => response.json().then(data => data[0].file_url));
+    const response = await fetch(url);
+    const data = await response.json();
+    return data[0].file_url;
 }
 function playNext() {
     getRandomVideo().then(src => {
