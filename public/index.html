@@ -2,20 +2,25 @@
 <html>
     <head>
         <style>
-            body, html {
+            body, html, video {
                 margin:0;
                 padding:0;
                 background:#000;
+                height: 100%;
+                width: 100%;
             }
             body {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
+            video {
+                object-fit: contain;
+            }
         </style>
     </head>
     <body>
-        <video id="myvideo" width="100%" autoplay muted>
+        <video autoplay muted>
             <source type="video/mp4">
             Your browser does not support mp4 video.
         </video>
