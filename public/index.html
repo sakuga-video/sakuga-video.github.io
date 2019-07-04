@@ -17,6 +17,9 @@
             video {
                 object-fit: contain;
             }
+            video::-webkit-media-controls {
+                display:none !important;
+            }
         </style>
     </head>
     <body>
@@ -36,9 +39,30 @@
                     video.play();
                 });
             });
-            video.addEventListener('dblclick', (event) => {
-                video.requestFullscreen();
-            })
+            var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
+            var isFullScreen = function() {
+                return !!(document.fullScreen || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement || document.fullscreenElement);
+            }
+            var setFullscreenData = function(state) {
+                video.setAttribute('data-fullscreen', !!state);
+            }
+            var handleFullscreen = function() {
+                if (isFullScreen()) {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                    else if (document.webkitCancelFullScreen) document.webkitCancelFullScreen();
+                    else if (document.msExitFullscreen) document.msExitFullscreen();
+                    setFullscreenData(false);
+                }
+                else {
+                    if (video.requestFullscreen) video.requestFullscreen();
+                    else if (video.mozRequestFullScreen) video.mozRequestFullScreen();
+                    else if (video.webkitRequestFullScreen) video.webkitRequestFullScreen();
+                    else if (video.msRequestFullscreen) video.msRequestFullscreen();
+                    setFullscreenData(true);
+                }
+            }
+            video.addEventListener('click', handleFullscreen);
             getRandomVideo().then(src => {
                 video.src = src;
                 video.play();
