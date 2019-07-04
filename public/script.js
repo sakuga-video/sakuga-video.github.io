@@ -4,6 +4,8 @@ const fullscreenButton = document.querySelector('#fullscreen');
 const playpauseButton = document.querySelector('#playpause');
 const nextButton = document.querySelector('#next');
 const controls = document.querySelector('#controls');
+const playPauseIcon = document.querySelector('#playpause i');
+const fullscreenIcon = document.querySelector('#fullscreen i');
 
 async function getRandomVideo() {
     const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
@@ -28,6 +30,7 @@ var isFullScreen = function() {
 }
 var setFullscreenData = function(state) {
     videoContainer.setAttribute('data-fullscreen', !!state);
+    fullscreenIcon.innerHTML = state ? 'fullscreen_exit' : 'fullscreen';
 }
 var handleFullscreen = function() {
     if (isFullScreen()) {
@@ -59,8 +62,13 @@ document.addEventListener('msfullscreenchange', () =>
 );
 fullscreenButton.addEventListener('click', handleFullscreen);
 playpauseButton.addEventListener('click', e => {
-    if (video.paused || video.ended) video.play();
-    else video.pause();
+    if (video.paused || video.ended) {
+        video.play();
+        playPauseIcon.innerHTML = "pause";
+    } else {
+        video.pause()
+        playPauseIcon.innerHTML = "play_arrow";
+    };
 });
 nextButton.addEventListener('click', playNext);
 

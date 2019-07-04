@@ -18,10 +18,17 @@ video::-webkit-media-controls {
 }
 #controls {
     z-index: 2147483647;
-    display: block;
     position: fixed;
     top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     list-style: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(2, 2, 2, .7);
+}
+#controls li {
+    display: inline-block;
 }
 #controls button {
     -moz-appearance: none;
@@ -29,6 +36,12 @@ video::-webkit-media-controls {
     background: none;
     border: none;
     outline: none;
+}
+#controls button:hover {
+    text-shadow: 0px 0px 5px #fff;
+}
+#controls button:active {
+    text-shadow: 0px 0px 20px #fff;
 }
 .material-icons.md-48 {
     font-size: 48px;
