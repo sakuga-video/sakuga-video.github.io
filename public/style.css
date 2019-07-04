@@ -50,22 +50,35 @@ video::-webkit-media-controls {
 }
 #controls input {
     font: 15px 'Open Sans', sans-serif;
-    color: rgb(12, 11, 11);
+    color: rgba(255, 255, 255, 0.9);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f3f3f3;
+    background-color: transparent;
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     box-sizing: border-box;         /* Opera/IE 8+ */
     border: none;
     padding: 11px 14px 12px 14px;
     width: 100%;
-    border-radius: 3px;
+
     -moz-appearance: none;
     -webkit-appearance: none;
     resize: none;
     outline: 0;
 }
+#controls input:focus {
+    background: rgba(0, 0, 0, 0.9);
+}
+#controls input::placeholder,
+#controls input:-ms-input-placeholder,
+#controls input::-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1; /* Firefox */
+}
+input::-webkit-calendar-picker-indicator {
+    background-color: inherit;
+}
+
 .material-icons.md-48 {
     font-size: 48px;
 }
@@ -77,11 +90,11 @@ video::-webkit-media-controls {
     visibility: hidden;
     opacity: 0;
 
-    -webkit-transition: visibility 0.5s, opacity 0.5s;
-        -moz-transition: visibility 0.5s, opacity 0.5s;
-        -ms-transition: visibility 0.5s, opacity 0.5s;
-        -o-transition: visibility 0.5s, opacity 0.5s;
-            transition: visibility 0.5s, opacity 0.5s;
+    -webkit-transition: visibility 0.2s, opacity 0.2s;
+        -moz-transition: visibility 0.2s, opacity 0.2s;
+        -ms-transition: visibility 0.2s, opacity 0.2s;
+        -o-transition: visibility 0.2s, opacity 0.2s;
+            transition: visibility 0.2s, opacity 0.2s;
 }
 .fade-out {
     cursor: none;

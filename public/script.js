@@ -160,7 +160,7 @@ activityCheck = setInterval(function() {
         && !textFocus()) {
         videoContainer.classList.add('fade-out');
       }
-    }, 1000);
+    }, 500);
   }
 }, 250);
 
@@ -183,6 +183,11 @@ input.addEventListener('input', () => {
 input.addEventListener("keyup", event => {
     if (event.key === "Enter") {
         input.blur();
+    }
+});
+input.addEventListener("blur", event => {
+    if (!videoContainer.classList.contains('fade-out')) {
+        videoContainer.classList.add('fade-out');
     }
 });
 getTags().then(tags => {
