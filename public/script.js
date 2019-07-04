@@ -15,17 +15,21 @@ var playlist = [];
 var index = 0;
 var currentTag = null;
 
-function playTag(tag) {
+function play(tag) {
     currentTag = tag;
+    var count;
     if (!tag) {
         count = 80000;
     } else {
         count = tagCounts.get(tag);
+        if (currentTag !== parseTagFromUrl()) {
+            saveTagToUrl(currentTag);
+        }
     }
     playlist = shuffle(Array.from(Array(count).keys())
         .map(n => ++n));
     index = 0;
-    playNext();
+    playNextVideo();
 }
 
 function shuffle(array) {
@@ -47,13 +51,13 @@ function shuffle(array) {
   return array;
 }
 
-async function getNextVideo() {
+async function loadNextVideo() {
     const nextId = playlist[index];
     index = (index + 1) % playlist.length;
 
     var url = '/api/post.json?limit=1&page=' + nextId;
     if (currentTag) {
-        url = url + '&tags=' + currentTag.split(" ").join("_");
+        url = url + '&tags=' + useUnderscores(currentTag);
     }
 
     const response = await fetch(url);
@@ -61,17 +65,18 @@ async function getNextVideo() {
     if (data && data[0] && data[0].file_url && data[0].file_ext === "mp4") {
         return data[0].file_url;
     } else {
-        return getNextVideo();
+        return loadNextVideo();
     }
 }
-function playNext() {
-    getNextVideo().then(src => {
+
+function playNextVideo() {
+    loadNextVideo().then(src => {
         video.src = src;
         video.play();
     });
 }
 
-video.addEventListener('ended', playNext);
+video.addEventListener('ended', playNextVideo);
 var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
 if (!fullScreenEnabled) {
     fullscreenButton.style.display = 'none';
@@ -121,7 +126,7 @@ playpauseButton.addEventListener('click', e => {
         playPauseIcon.innerHTML = "play_arrow";
     };
 });
-nextButton.addEventListener('click', playNext);
+nextButton.addEventListener('click', playNextVideo);
 
 var userActivity, activityCheck, inactivityTimeout;
 
@@ -168,7 +173,7 @@ async function getTags() {
     const response = await fetch('/api/tag.json?limit=0');
     return await response.json();
 }
-function useTags(tags) {
+function putTagsInForm(tags) {
     var innerString = '';
     for (tag of tags) {
         innerString = innerString + "<option>" + tag + "</option>";
@@ -177,7 +182,7 @@ function useTags(tags) {
 }
 input.addEventListener('input', () => {
     if (!input.value || tagText.includes(input.value)) {
-        playTag(input.value);
+        play(input.value);
     }
 });
 input.addEventListener("keyup", event => {
@@ -190,11 +195,39 @@ input.addEventListener("blur", event => {
         videoContainer.classList.add('fade-out');
     }
 });
-getTags().then(tags => {
-    const filteredTags = tags.filter(tag => tag.count > 50)
-    tagText = filteredTags.map(tag => tag.name.split("_").join(" "));
-    tagCounts = new Map(filteredTags.map(tag => [tag.name.split("_").join(" "), tag.count]));
-    useTags(tagText);
-});
 
-playTag();
+function useUnderscores(tag) {
+    return tag.split(" ").join("_");
+}
+
+function makeReadable(tag) {
+    return tag.split("_").join(" ");
+}
+
+function saveTagToUrl(tag) {
+    history.pushState(null, tag + " videos", "?tag="+encodeURIComponent(useUnderscores(tag)))
+}
+
+function parseTagFromUrl() {
+    const encodedTag = new URLSearchParams(window.location.search).get("tag");
+    if (encodedTag) {
+        return makeReadable(decodeURIComponent(encodedTag));
+    } else {
+        return null;
+    }
+}
+
+function saveTagState(tags) {
+    const filteredTags = tags.filter(tag => tag.count > 50)
+    tagText = filteredTags.map(tag => makeReadable(tag.name));
+    tagCounts = new Map(filteredTags.map(tag => [makeReadable(tag.name), tag.count]));
+    putTagsInForm(tagText);
+}
+
+currentTag = parseTagFromUrl();
+if (currentTag) {
+    getTags().then(saveTagState).then(() => play(currentTag));
+} else {
+    getTags().then(saveTagState)
+    play();
+}
