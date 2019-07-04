@@ -43,7 +43,24 @@
             .material-icons.md-light {
                 color: rgba(255, 255, 255, 1);
             }
-            
+            .fade-out {
+                display: block;
+                visibility: hidden;
+                opacity: 0;
+
+                -webkit-transition: visibility 1.5s, opacity 1.5s;
+                    -moz-transition: visibility 1.5s, opacity 1.5s;
+                    -ms-transition: visibility 1.5s, opacity 1.5s;
+                    -o-transition: visibility 1.5s, opacity 1.5s;
+                        transition: visibility 1.5s, opacity 1.5s;
+
+                /* Wait a moment before fading out the control bar */
+                -webkit-transition-delay: 2s;
+                    -moz-transition-delay: 2s;
+                    -ms-transition-delay: 2s;
+                    -o-transition-delay: 2s;
+                        transition-delay: 2s;
+            }
         </style>
     </head>
     <body>
@@ -65,6 +82,7 @@
             const fullscreenButton = document.querySelector('#fullscreen');
             const playpauseButton = document.querySelector('#playpause');
             const nextButton = document.querySelector('#next');
+            const controls = document.querySelector('#controls');
 
             function getRandomVideo() {
                 const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
@@ -104,28 +122,38 @@
                     setFullscreenData(true);
                 }
             }
-            document.addEventListener('fullscreenchange', function(e) {
-                setFullscreenData(!!(document.fullScreen || document.fullscreenElement));
-            });
-            document.addEventListener('webkitfullscreenchange', function() {
-                setFullscreenData(!!document.webkitIsFullScreen);
-            });
-            document.addEventListener('mozfullscreenchange', function() {
-                setFullscreenData(!!document.mozFullScreen);
-            });
-            document.addEventListener('msfullscreenchange', function() {
-                setFullscreenData(!!document.msFullscreenElement);
-            });
+            document.addEventListener('fullscreenchange', (e) =>
+                setFullscreenData(!!(document.fullScreen || document.fullscreenElement))
+            );
+            document.addEventListener('webkitfullscreenchange', () =>
+                setFullscreenData(!!document.webkitIsFullScreen)
+            );
+            document.addEventListener('mozfullscreenchange', () =>
+                setFullscreenData(!!document.mozFullScreen)
+            );
+            document.addEventListener('msfullscreenchange', () =>
+                setFullscreenData(!!document.msFullscreenElement)
+            );
             fullscreenButton.addEventListener('click', handleFullscreen);
             playpauseButton.addEventListener('click', e => {
                 if (video.paused || video.ended) video.play();
                 else video.pause();
             });
             nextButton.addEventListener('click', playNext);
+            videoContainer.addEventListener('mouseout', () => {
+                controls.classList.add('fade-out')
+                console.log("test fade out");
+            });
+
+            videoContainer.addEventListener('mouseover', () => {
+                controls.classList.remove('fade-out');
+                console.log("come back");
+            });
             getRandomVideo().then(src => {
                 video.src = src;
                 video.play();
             })
+
         </script>
     </body>
 </html>
