@@ -20,6 +20,9 @@
             video::-webkit-media-controls {
                 display:none !important;
             }
+            #controls {
+                z-index: 2147483647;
+            }
         </style>
     </head>
     <body>
@@ -27,8 +30,15 @@
             <source type="video/mp4">
             Your browser does not support mp4 video.
         </video>
+        <ul id="controls">
+            <li><button id="fullscreen" type="button">Fullscreen</button></li>
+            <li><button id="playpause" type="button">Play/Pause</button></li>
+        </ul>
         <script>
             const video = document.querySelector('video');
+            const fullscreenButton = document.querySelector('#fullscreen');
+            const playpauseButton = document.querySelector('#playpause');
+
             function getRandomVideo() {
                 const url = '/api/post.json?limit=1&page=' + Math.floor(Math.random() * 15390) + '&tags=fighting';
                 return fetch(url).then(response => response.json().then(data => data[0].file_url));
@@ -62,7 +72,23 @@
                     setFullscreenData(true);
                 }
             }
-            video.addEventListener('click', handleFullscreen);
+            document.addEventListener('fullscreenchange', function(e) {
+                setFullscreenData(!!(document.fullScreen || document.fullscreenElement));
+            });
+            document.addEventListener('webkitfullscreenchange', function() {
+                setFullscreenData(!!document.webkitIsFullScreen);
+            });
+            document.addEventListener('mozfullscreenchange', function() {
+                setFullscreenData(!!document.mozFullScreen);
+            });
+            document.addEventListener('msfullscreenchange', function() {
+                setFullscreenData(!!document.msFullscreenElement);
+            });
+            fullscreenButton.addEventListener('click', handleFullscreen);
+            playpauseButton.addEventListener('click', e => {
+                if (video.paused || video.ended) video.play();
+                else video.pause();
+            });
             getRandomVideo().then(src => {
                 video.src = src;
                 video.play();
