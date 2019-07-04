@@ -23,12 +23,16 @@ video::-webkit-media-controls {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    list-style: none;
     padding: 0;
     margin: 0;
     background: rgba(2, 2, 2, .7);
 }
-#controls li {
+#controls ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#controls ul li {
     display: inline-block;
 }
 #controls button {
@@ -43,6 +47,24 @@ video::-webkit-media-controls {
 }
 #controls button:active {
     text-shadow: 0px 0px 20px #fff;
+}
+#controls input {
+    font: 15px 'Open Sans', sans-serif;
+    color: rgb(12, 11, 11);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f3f3f3;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    border: none;
+    padding: 11px 14px 12px 14px;
+    width: 100%;
+    border-radius: 3px;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    resize: none;
+    outline: 0;
 }
 .material-icons.md-48 {
     font-size: 48px;

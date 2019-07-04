@@ -12,11 +12,15 @@
                 <source type="video/mp4">
                 Your browser does not support mp4 video.
             </video>
-            <ul id="controls">
-                <li><button id="fullscreen" type="button"><i class="material-icons md-light md-48">fullscreen</i></button></li>
-                <li><button id="playpause" type="button"><i class="material-icons md-light md-48">pause</i></button></li>
-                <li><button id="next" type="button"><i class="material-icons md-light md-48">skip_next</i></button></li>
-            </ul>
+            <div id="controls">
+                <ul>
+                    <li><button id="fullscreen" type="button"><i class="material-icons md-light md-48">fullscreen</i></button></li>
+                    <li><button id="playpause" type="button"><i class="material-icons md-light md-48">pause</i></button></li>
+                    <li><button id="next" type="button"><i class="material-icons md-light md-48">skip_next</i></button></li>
+                </ul>
+                <input list="tags" autocomplete="off" placeholder="Pick a theme">
+                <datalist id="tags"></datalist>
+            </div>
         </div>
 
         <script src="script.js"></script>
