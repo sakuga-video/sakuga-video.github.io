@@ -4,6 +4,7 @@ body, html, video, #videocontainer {
     background:#000;
     height: 100%;
     width: 100%;
+    overflow-y: hidden;
 }
 body {
     display: flex;
