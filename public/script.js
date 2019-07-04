@@ -226,7 +226,10 @@ function saveTagState(tags) {
 
 currentTag = parseTagFromUrl();
 if (currentTag) {
-    getTags().then(saveTagState).then(() => play(currentTag));
+    getTags().then(saveTagState).then(() => {
+        input.value = currentTag;
+        play(currentTag);
+    });
 } else {
     getTags().then(saveTagState)
     play();
