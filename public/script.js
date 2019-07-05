@@ -39,22 +39,22 @@ function play(tag, video) {
 }
 
 function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
+    var currentIndex = array.length, temporaryValue, randomIndex;
 
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
 
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
 
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
 
-  return array;
+    return array;
 }
 
 function shiftIndex(offset) {
@@ -91,7 +91,10 @@ async function fetchNextValidVideo(url, offset) {
 }
 
 function videoIsValid(video) {
-    return video && video.file_url && video.file_ext === "mp4" && video.id;
+    return video
+            && video.file_url
+            && (video.file_ext === "mp4" || video.file_ext === "webm")
+            && video.id;
 }
 
 function tagIsValid(tag) {
@@ -100,6 +103,16 @@ function tagIsValid(tag) {
 
 function playVideo(video) {
     loadVideo(video).then(playLoadedVideo);
+}
+
+function togglePause() {
+    if (videoPlayer.paused || videoPlayer.ended) {
+        videoPlayer.play();
+        playPauseIcon.innerHTML = "pause";
+    } else {
+        videoPlayer.pause();
+        playPauseIcon.innerHTML = "play_arrow";
+    }
 }
 
 function playNextVideo() {
@@ -156,15 +169,7 @@ document.addEventListener('msfullscreenchange', () =>
     setFullscreenData(!!document.msFullscreenElement)
 );
 fullscreenButton.addEventListener('click', handleFullscreen);
-playpauseButton.addEventListener('click', e => {
-    if (videoPlayer.paused || videoPlayer.ended) {
-        videoPlayer.play();
-        playPauseIcon.innerHTML = "pause";
-    } else {
-        videoPlayer.pause()
-        playPauseIcon.innerHTML = "play_arrow";
-    };
-});
+playpauseButton.addEventListener('click', togglePause);
 nextButton.addEventListener('click', playNextVideo);
 previousButton.addEventListener('click', playPreviousVideo);
 
@@ -233,6 +238,18 @@ input.addEventListener("blur", event => {
     hideControls();
 });
 
+window.addEventListener("keyup", event => {
+    if (event.key === "ArrowRight") {
+        playNextVideo();
+    }
+    if (event.key === "ArrowLeft") {
+        playPreviousVideo();
+    }
+    console.log(event.key);
+    if (event.key === " ") {
+        togglePause();
+    }
+});
 window.addEventListener("popstate", event => {
     if (event.state.tag && event.state.tag !== currentTag) {
         input.value = event.state.tag;
