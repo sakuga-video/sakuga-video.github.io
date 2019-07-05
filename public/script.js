@@ -207,7 +207,7 @@ activityCheck = setInterval(() => {
 }, 250);
 
 async function getTags() {
-    const response = await fetch('/api/tag.json?limit=0');
+    const response = await fetch('/api/tag.json?limit=1500&order=count');
     return await response.json();
 }
 function putTagsInForm(tags) {
@@ -299,9 +299,8 @@ function parseVideoIdFromUrl() {
 }
 
 function saveTagState(tags) {
-    const filteredTags = tags.filter(tag => tag.count > 50)
-    tagText = filteredTags.map(tag => makeReadable(tag.name));
-    tagCounts = new Map(filteredTags.map(tag => [makeReadable(tag.name), tag.count]));
+    tagText = tags.map(tag => makeReadable(tag.name));
+    tagCounts = new Map(tags.map(tag => [makeReadable(tag.name), tag.count]));
     putTagsInForm(tagText);
 }
 
