@@ -344,14 +344,11 @@ function startPage() {
     const video = parseVideoIdFromUrl() ? {id: parseVideoIdFromUrl()} : null;
     if (tag) {
         history.replaceState({tag: tag}, null);
-        getTags().then(saveTagState).then(() => {
-            input.value = tag;
-            play(tag, video);
-        });
-    } else {
-        getTags().then(saveTagState)
-        play(tag, video);
+        input.value = tag;
     }
+    getTags().then(saveTagState).then(() => {
+        play(tag, video);
+    });
 }
 
 startPage();
