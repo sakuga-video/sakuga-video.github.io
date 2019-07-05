@@ -87,6 +87,10 @@ function videoIsValid(video) {
     return video && video.file_url && video.file_ext === "mp4" && video.id;
 }
 
+function tagIsValid(tag) {
+    return !tag || tagText.includes(tag)
+}
+
 function playVideo(video) {
     loadVideo(video).then(playLoadedVideo);
 }
@@ -203,10 +207,12 @@ function putTagsInForm(tags) {
     tagsDatalist.innerHTML = innerString;
 }
 input.addEventListener('input', () => {
-    if (!input.value || tagText.includes(input.value)) {
-        play(input.value, null);
+    const tag = input.value;
+    if (tagIsValid(tag)) {
+        play(tag, null);
     }
 });
+
 input.addEventListener("keyup", event => {
     if (event.key === "Enter") {
         input.blur();
