@@ -107,13 +107,19 @@ function playVideo(video) {
     loadVideo(video).then(playLoadedVideo);
 }
 
+function showPauseIcon() {
+    playPauseIcon.innerHTML = "pause";
+}
+
+function showPlayIcon() {
+    playPauseIcon.innerHTML = "play_arrow";
+}
+
 function togglePause() {
     if (videoPlayer.paused || videoPlayer.ended) {
         videoPlayer.play();
-        playPauseIcon.innerHTML = "pause";
     } else {
         videoPlayer.pause();
-        playPauseIcon.innerHTML = "play_arrow";
     }
 }
 
@@ -142,7 +148,6 @@ function addVideoTagsToUi(tags) {
     videoTags.innerHTML = tagsHtml;
 }
 
-videoPlayer.addEventListener('ended', playNextVideo);
 var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
 if (!fullScreenEnabled) {
     fullscreenButton.style.display = 'none';
@@ -199,7 +204,7 @@ videoTags.addEventListener('click', event => {
 var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
 videoContainer.addEventListener('mousemove', event => userActivity = true);
-videoContainer.addEventListener('click', event => userActivity = true)
+controls.addEventListener('click', event => userActivity = true);
 
 videoPlayer.addEventListener('touchstart', function(event) {
     toggleControls();
@@ -207,6 +212,10 @@ videoPlayer.addEventListener('touchstart', function(event) {
         event.preventDefault();
     }
 });
+videoPlayer.addEventListener('click', togglePause);
+videoPlayer.addEventListener('ended', playNextVideo);
+videoPlayer.addEventListener('play', showPauseIcon);
+videoPlayer.addEventListener('pause', showPlayIcon);
 
 function tagSearchActive() {
     return document.activeElement === input;
@@ -274,13 +283,15 @@ input.addEventListener("blur", event => {
 });
 
 window.addEventListener("keyup", event => {
+    if (event.target === input) {
+        return;
+    }
     if (event.key === "ArrowRight") {
         playNextVideo();
     }
     if (event.key === "ArrowLeft") {
         playPreviousVideo();
     }
-    console.log(event.key);
     if (event.key === " ") {
         togglePause();
     }
