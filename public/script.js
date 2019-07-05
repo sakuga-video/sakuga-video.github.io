@@ -189,9 +189,8 @@ previousButton.addEventListener('click', playPreviousVideo);
 
 var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
-videoContainer.addEventListener('mousemove', function(event){
-    userActivity = true;
-});
+videoContainer.addEventListener('mousemove', event => userActivity = true);
+videoContainer.addEventListener('click', event => userActivity = true)
 
 videoPlayer.addEventListener('touchstart', function(event) {
     toggleControls();
