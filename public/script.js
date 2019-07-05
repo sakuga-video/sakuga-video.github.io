@@ -1,4 +1,4 @@
-const video = document.querySelector('video');
+const videoPlayer = document.querySelector('video');
 const videoContainer = document.querySelector('#videocontainer');
 const fullscreenButton = document.querySelector('#fullscreen');
 const playpauseButton = document.querySelector('#playpause');
@@ -15,7 +15,7 @@ var playlist = [];
 var index = 0;
 var currentTag = null;
 
-function play(tag) {
+function play(tag, video) {
     currentTag = tag;
     var count;
     if (!tag) {
@@ -29,7 +29,12 @@ function play(tag) {
     playlist = shuffle(Array.from(Array(count).keys())
         .map(n => ++n));
     index = 0;
-    playNextVideo();
+
+    if (video) {
+        playVideo(video);
+    } else {
+        playNextVideo();
+    }
 }
 
 function shuffle(array) {
@@ -60,23 +65,43 @@ async function loadNextVideo() {
         url = url + '&tags=' + useUnderscores(currentTag);
     }
 
+    return fetchNextValidVideo(url);
+}
+
+async function loadVideo(video) {
+    var url = '/api/post.json?tags=id:' + video.id;
+    return fetchNextValidVideo(url);
+}
+
+async function fetchNextValidVideo(url) {
     const response = await fetch(url);
     const data = await response.json();
-    if (data && data[0] && data[0].file_url && data[0].file_ext === "mp4") {
-        return data[0].file_url;
+    if (videoIsValid(data[0])) {
+        return data[0];
     } else {
         return loadNextVideo();
     }
 }
 
-function playNextVideo() {
-    loadNextVideo().then(src => {
-        video.src = src;
-        video.play();
-    });
+function videoIsValid(video) {
+    return video && video.file_url && video.file_ext === "mp4" && video.id;
 }
 
-video.addEventListener('ended', playNextVideo);
+function playVideo(video) {
+    loadVideo(video).then(playLoadedVideo);
+}
+
+function playNextVideo() {
+    loadNextVideo().then(playLoadedVideo);
+}
+
+function playLoadedVideo(video) {
+    videoPlayer.src = video.file_url;
+    saveVideoToUrl(video);
+    videoPlayer.play();
+}
+
+videoPlayer.addEventListener('ended', playNextVideo);
 var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
 if (!fullScreenEnabled) {
     fullscreenButton.style.display = 'none';
@@ -118,11 +143,11 @@ document.addEventListener('msfullscreenchange', () =>
 );
 fullscreenButton.addEventListener('click', handleFullscreen);
 playpauseButton.addEventListener('click', e => {
-    if (video.paused || video.ended) {
-        video.play();
+    if (videoPlayer.paused || videoPlayer.ended) {
+        videoPlayer.play();
         playPauseIcon.innerHTML = "pause";
     } else {
-        video.pause()
+        videoPlayer.pause()
         playPauseIcon.innerHTML = "play_arrow";
     };
 });
@@ -182,7 +207,7 @@ function putTagsInForm(tags) {
 }
 input.addEventListener('input', () => {
     if (!input.value || tagText.includes(input.value)) {
-        play(input.value);
+        play(input.value, null);
     }
 });
 input.addEventListener("keyup", event => {
@@ -205,7 +230,16 @@ function makeReadable(tag) {
 }
 
 function saveTagToUrl(tag) {
-    history.pushState(null, tag + " videos", "?tag="+encodeURIComponent(useUnderscores(tag)))
+    history.pushState(null, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+}
+
+function saveVideoToUrl(video) {
+    const tag = new URLSearchParams(window.location.search).get("tag");
+    var queryParams = "?video=" + video.id;
+    if (tag) {
+        queryParams += "&tag=" + tag;
+    }
+    history.replaceState(null, tag + " videos", queryParams);
 }
 
 function parseTagFromUrl() {
@@ -217,6 +251,10 @@ function parseTagFromUrl() {
     }
 }
 
+function parseVideoIdFromUrl() {
+    return new URLSearchParams(window.location.search).get("video");
+}
+
 function saveTagState(tags) {
     const filteredTags = tags.filter(tag => tag.count > 50)
     tagText = filteredTags.map(tag => makeReadable(tag.name));
@@ -224,13 +262,18 @@ function saveTagState(tags) {
     putTagsInForm(tagText);
 }
 
-currentTag = parseTagFromUrl();
-if (currentTag) {
-    getTags().then(saveTagState).then(() => {
-        input.value = currentTag;
-        play(currentTag);
-    });
-} else {
-    getTags().then(saveTagState)
-    play();
+function startPage() {
+    const tag = parseTagFromUrl();
+    const video = parseVideoIdFromUrl() ? {id: parseVideoIdFromUrl()} : null;
+    if (tag) {
+        getTags().then(saveTagState).then(() => {
+            input.value = tag;
+            play(tag, video);
+        });
+    } else {
+        getTags().then(saveTagState)
+        play(tag, video);
+    }
 }
+
+startPage();
