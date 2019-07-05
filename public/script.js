@@ -187,7 +187,7 @@ playpauseButton.addEventListener('click', togglePause);
 nextButton.addEventListener('click', playNextVideo);
 previousButton.addEventListener('click', playPreviousVideo);
 
-var userActivity, activityCheck, inactivityTimeout;
+var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
 videoContainer.addEventListener('mousemove', function(event){
     userActivity = true;
@@ -200,8 +200,12 @@ videoPlayer.addEventListener('touchstart', function(event) {
     }
 });
 
-function inputHasFocus() {
+function tagSearchActive() {
     return document.activeElement === input;
+}
+
+function hideControlsTimeout() {
+    return controlsHovered ? 3500 : 500;
 }
 
 activityCheck = setInterval(() => {
@@ -218,10 +222,10 @@ activityCheck = setInterval(() => {
         // Protect against the case where the inactivity timeout can trigger
         // before the next user activity is picked up  by the 
         // activityCheck loop.
-        if (!userActivity && !inputHasFocus()) {
+        if (!userActivity && !tagSearchActive()) {
             hideControls();
         }
-    }, 500);
+    }, hideControlsTimeout());
   }
 }, 250);
 
@@ -236,6 +240,17 @@ function putTagsInForm(tags) {
     }
     tagsDatalist.innerHTML = innerString;
 }
+
+controls.addEventListener('mouseenter', () => {
+    controlsHovered = true;
+    console.log("enter");
+});
+
+controls.addEventListener('mouseleave', () => {
+    controlsHovered = false;
+    console.log("leave");
+})
+
 input.addEventListener('input', () => {
     const tag = input.value;
     if (tagIsValid(tag)) {
