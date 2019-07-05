@@ -25,7 +25,7 @@ function play(tag, video) {
         count = 80000;
     } else {
         count = tagCounts.get(tag);
-        if (currentTag !== parseTagFromUrl()) {
+        if (currentTag !== parseTagFromWindowLocation()) {
             saveTagToUrl(currentTag);
         }
     }
@@ -187,6 +187,15 @@ playpauseButton.addEventListener('click', togglePause);
 nextButton.addEventListener('click', playNextVideo);
 previousButton.addEventListener('click', playPreviousVideo);
 
+videoTags.addEventListener('click', event => {
+    const node = event.target
+    if (node.tagName === "A") {
+        event.preventDefault();
+        const tag = parseTagFromQueryParams(node.getAttribute("href"));
+        setCurrentTag(tag);
+    }
+})
+
 var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
 videoContainer.addEventListener('mousemove', event => userActivity = true);
@@ -242,12 +251,10 @@ function putTagsInForm(tags) {
 
 controls.addEventListener('mouseenter', () => {
     controlsHovered = true;
-    console.log("enter");
 });
 
 controls.addEventListener('mouseleave', () => {
     controlsHovered = false;
-    console.log("leave");
 })
 
 input.addEventListener('input', () => {
@@ -279,11 +286,15 @@ window.addEventListener("keyup", event => {
     }
 });
 window.addEventListener("popstate", event => {
-    if (event.state.tag && event.state.tag !== currentTag) {
-        input.value = event.state.tag;
-        play(event.state.tag, null);
-    }
+    setCurrentTag(event.state.tag);
 });
+
+function setCurrentTag(tag) {
+    if (tag && tag !== currentTag) {
+        input.value = tag;
+        play(tag, null);
+    }
+}
 
 function toggleControls() {
     if (controlsHidden()) {
@@ -330,8 +341,12 @@ function saveVideoToUrl(video) {
     history.replaceState(history.state, tag + " videos", queryParams);
 }
 
-function parseTagFromUrl() {
-    const encodedTag = new URLSearchParams(window.location.search).get("tag");
+function parseTagFromWindowLocation() {
+    return parseTagFromQueryParams(window.location.search);
+}
+
+function parseTagFromQueryParams(queryParams) {
+    const encodedTag = new URLSearchParams(queryParams).get("tag");
     if (encodedTag) {
         return makeReadable(decodeURIComponent(encodedTag));
     } else {
@@ -354,7 +369,7 @@ function saveTagState(tags) {
 }
 
 function startPage() {
-    const tag = parseTagFromUrl();
+    const tag = parseTagFromWindowLocation();
     const video = parseVideoIdFromUrl() ? {id: parseVideoIdFromUrl()} : null;
     if (tag) {
         history.replaceState({tag: tag}, null);
