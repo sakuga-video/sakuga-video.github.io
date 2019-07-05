@@ -155,41 +155,38 @@ nextButton.addEventListener('click', playNextVideo);
 
 var userActivity, activityCheck, inactivityTimeout;
 
-videoContainer.addEventListener('mousemove', function(){
+videoContainer.addEventListener('mousemove', function(event){
     userActivity = true;
 });
 
-function textFocus() {
+videoPlayer.addEventListener('touchstart', function(event) {
+    toggleControls();
+    if (event.target === videoPlayer) {
+        event.preventDefault();
+    }
+});
+
+function inputHasFocus() {
     return document.activeElement === input;
 }
 
-activityCheck = setInterval(function() {
-
-  // Check to see if the mouse has been moved
+activityCheck = setInterval(() => {
   if (userActivity) {
-
-    // Reset the activity tracker
     userActivity = false;
-
-    // If the user state was inactive, set the state to active
-    if (videoContainer.classList.contains('fade-out')) {
-      videoContainer.classList.remove('fade-out');
-    }
+    showControls();
 
     // Clear any existing inactivity timeout to start the timer over
     clearTimeout(inactivityTimeout);
 
     // In X seconds, if no more activity has occurred 
     // the user will be considered inactive
-    inactivityTimeout = setTimeout(function() {
-      // Protect against the case where the inactivity timeout can trigger
-      // before the next user activity is picked up  by the 
-      // activityCheck loop.
-      if (!userActivity
-        && !videoContainer.classList.contains('fade-out')
-        && !textFocus()) {
-        videoContainer.classList.add('fade-out');
-      }
+    inactivityTimeout = setTimeout(() => {
+        // Protect against the case where the inactivity timeout can trigger
+        // before the next user activity is picked up  by the 
+        // activityCheck loop.
+        if (!userActivity && !inputHasFocus()) {
+            hideControls();
+        }
     }, 500);
   }
 }, 250);
@@ -216,9 +213,7 @@ input.addEventListener("keyup", event => {
     }
 });
 input.addEventListener("blur", event => {
-    if (!videoContainer.classList.contains('fade-out')) {
-        videoContainer.classList.add('fade-out');
-    }
+    hideControls();
 });
 
 window.addEventListener("popstate", event => {
@@ -227,6 +222,30 @@ window.addEventListener("popstate", event => {
         play(event.state.tag, null);
     }
 });
+
+function toggleControls() {
+    if (controlsHidden()) {
+        showControls();
+    } else {
+        hideControls();
+    }
+}
+
+function controlsHidden() {
+    return videoContainer.classList.contains('fade-out');
+}
+
+function showControls() {
+    if (controlsHidden()) {
+        videoContainer.classList.remove('fade-out');
+    }
+}
+
+function hideControls() {
+    if (!controlsHidden()) {
+        videoContainer.classList.add('fade-out');
+    }
+}
 
 function useUnderscores(tag) {
     return tag.split(" ").join("_");
