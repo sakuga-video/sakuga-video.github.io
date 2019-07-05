@@ -221,6 +221,13 @@ input.addEventListener("blur", event => {
     }
 });
 
+window.addEventListener("popstate", event => {
+    if (event.state.tag && event.state.tag !== currentTag) {
+        input.value = event.state.tag;
+        play(event.state.tag, null);
+    }
+});
+
 function useUnderscores(tag) {
     return tag.split(" ").join("_");
 }
@@ -230,7 +237,7 @@ function makeReadable(tag) {
 }
 
 function saveTagToUrl(tag) {
-    history.pushState(null, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+    history.pushState({tag: tag}, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
 }
 
 function saveVideoToUrl(video) {
@@ -239,7 +246,7 @@ function saveVideoToUrl(video) {
     if (tag) {
         queryParams += "&tag=" + tag;
     }
-    history.replaceState(null, tag + " videos", queryParams);
+    history.replaceState(history.state, tag + " videos", queryParams);
 }
 
 function parseTagFromUrl() {
@@ -266,6 +273,7 @@ function startPage() {
     const tag = parseTagFromUrl();
     const video = parseVideoIdFromUrl() ? {id: parseVideoIdFromUrl()} : null;
     if (tag) {
+        history.replaceState({tag: tag}, null);
         getTags().then(saveTagState).then(() => {
             input.value = tag;
             play(tag, video);
