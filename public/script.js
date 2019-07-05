@@ -3,6 +3,7 @@ const videoContainer = document.querySelector('#videocontainer');
 const fullscreenButton = document.querySelector('#fullscreen');
 const playpauseButton = document.querySelector('#playpause');
 const nextButton = document.querySelector('#next');
+const previousButton = document.querySelector('#previous');
 const controls = document.querySelector('#controls');
 const playPauseIcon = document.querySelector('#playpause i');
 const fullscreenIcon = document.querySelector('#fullscreen i');
@@ -56,16 +57,20 @@ function shuffle(array) {
   return array;
 }
 
-async function loadNextVideo() {
-    const nextId = playlist[index];
-    index = (index + 1) % playlist.length;
+function shiftIndex(offset) {
+    // increase or decrease index with wraparound
+    index = (index + offset + playlist.length) % playlist.length;
+}
 
-    var url = '/api/post.json?limit=1&page=' + nextId;
+async function loadVideoByOffset(offset) {
+    shiftIndex(offset);
+
+    var url = '/api/post.json?limit=1&page=' + playlist[index];
     if (currentTag) {
         url = url + '&tags=' + useUnderscores(currentTag);
     }
 
-    return fetchNextValidVideo(url);
+    return fetchNextValidVideo(url, offset);
 }
 
 async function loadVideo(video) {
@@ -73,13 +78,15 @@ async function loadVideo(video) {
     return fetchNextValidVideo(url);
 }
 
-async function fetchNextValidVideo(url) {
+async function fetchNextValidVideo(url, offset) {
     const response = await fetch(url);
-    const data = await response.json();
-    if (videoIsValid(data[0])) {
-        return data[0];
+    const videos = await response.json();
+    const video = videos[0];
+
+    if (videoIsValid(video)) {
+        return video;
     } else {
-        return loadNextVideo();
+        return loadVideoByOffset(offset);
     }
 }
 
@@ -96,7 +103,10 @@ function playVideo(video) {
 }
 
 function playNextVideo() {
-    loadNextVideo().then(playLoadedVideo);
+    loadVideoByOffset(1).then(playLoadedVideo);
+}
+function playPreviousVideo() {
+    loadVideoByOffset(-1).then(playLoadedVideo);
 }
 
 function playLoadedVideo(video) {
@@ -156,6 +166,7 @@ playpauseButton.addEventListener('click', e => {
     };
 });
 nextButton.addEventListener('click', playNextVideo);
+previousButton.addEventListener('click', playPreviousVideo);
 
 var userActivity, activityCheck, inactivityTimeout;
 
