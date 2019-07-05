@@ -5,6 +5,9 @@ body, html, video, #videocontainer {
     height: 100%;
     width: 100%;
     overflow-y: hidden;
+    font: 15px 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 body {
     display: flex;
@@ -19,20 +22,22 @@ video::-webkit-media-controls {
 }
 #controls {
     z-index: 2147483647;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     padding: 0;
     margin: 0;
+    position: fixed;
     background: rgba(2, 2, 2, .7);
+    color: rgba(255, 255, 255, 0.9);
+    bottom: 0%;
+    left: 50%;
+    transform: translateX(-50%);
 }
-#controls ul {
+#controls ul#playback-controls {
     list-style: none;
     padding: 0;
     margin: 0;
+    white-space: nowrap;
 }
-#controls ul li {
+#controls ul#playback-controls li {
     display: inline-block;
 }
 #controls button {
@@ -49,10 +54,8 @@ video::-webkit-media-controls {
     text-shadow: 0px 0px 20px #fff;
 }
 #controls input {
-    font: 15px 'Open Sans', sans-serif;
-    color: rgba(255, 255, 255, 0.9);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font: inherit;
+    color: inherit;
     background-color: transparent;
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -60,7 +63,6 @@ video::-webkit-media-controls {
     border: none;
     padding: 11px 14px 12px 14px;
     width: 100%;
-
     -moz-appearance: none;
     -webkit-appearance: none;
     resize: none;
@@ -75,6 +77,23 @@ video::-webkit-media-controls {
     color: rgba(255, 255, 255, 0.8);
     opacity: 1; /* Firefox */
 }
+
+#video-tags {
+    list-style: none;
+    padding: 11px 14px;
+    margin: 0px;
+}
+
+#video-tags a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#video-tags a:hover {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0px 0px 5px #fff;
+}
+
 input::-webkit-calendar-picker-indicator {
     background-color: inherit;
 }

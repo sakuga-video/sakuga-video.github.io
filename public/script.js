@@ -9,6 +9,8 @@ const playPauseIcon = document.querySelector('#playpause i');
 const fullscreenIcon = document.querySelector('#fullscreen i');
 const input = document.querySelector('input');
 const tagsDatalist = document.querySelector('#tags');
+const videoTags = document.querySelector('#video-tags');
+const tagsToExclude = ["animated", "artist unknown"];
 
 var tagText = [];
 var tagCounts = new Map();
@@ -124,8 +126,20 @@ function playPreviousVideo() {
 
 function playLoadedVideo(video) {
     videoPlayer.src = video.file_url;
+    addVideoTagsToUi(video.tags.split(" "));
     saveVideoToUrl(video);
     videoPlayer.play();
+}
+
+function addVideoTagsToUi(tags) {
+    var tagsHtml = "";
+    for (tag of tags) {
+        const readableTag = makeReadable(tag);
+        if (tagIsValid(readableTag) && !(currentTag === readableTag)) {
+            tagsHtml = tagsHtml + "<li><a href='?tag=" + tag + "'>" + readableTag + "</a></li>"
+        }
+    }
+    videoTags.innerHTML = tagsHtml;
 }
 
 videoPlayer.addEventListener('ended', playNextVideo);
@@ -316,8 +330,12 @@ function parseVideoIdFromUrl() {
 }
 
 function saveTagState(tags) {
-    tagText = tags.map(tag => makeReadable(tag.name));
-    tagCounts = new Map(tags.map(tag => [makeReadable(tag.name), tag.count]));
+    tagText = tags
+        .map(tag => makeReadable(tag.name))
+        .filter(tag => !tagsToExclude.includes(tag));
+    tagCounts = new Map(tags
+        .map(tag => [makeReadable(tag.name), tag.count])
+        .filter(tagAndCount => !tagsToExclude.includes(tagAndCount[0])));
     putTagsInForm(tagText);
 }
 

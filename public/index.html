@@ -10,14 +10,15 @@
         <div id="videocontainer" class="fade-out">
             <video autoplay muted></video>
             <div id="controls">
-                <ul>
+                <input list="tags" autocomplete="off" placeholder="Pick a theme">
+                <datalist id="tags"></datalist>
+                <ul id="video-tags"></ul>
+                <ul id="playback-controls">
                     <li><button id="previous" type="button"><i class="material-icons md-light md-48">skip_previous</i></button></li>
                     <li><button id="playpause" type="button"><i class="material-icons md-light md-48">pause</i></button></li>
                     <li><button id="next" type="button"><i class="material-icons md-light md-48">skip_next</i></button></li>
                     <li><button id="fullscreen" type="button"><i class="material-icons md-light md-48">fullscreen</i></button></li>
                 </ul>
-                <input list="tags" autocomplete="off" placeholder="Pick a theme">
-                <datalist id="tags"></datalist>
             </div>
         </div>
 
