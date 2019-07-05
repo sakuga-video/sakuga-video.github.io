@@ -136,7 +136,7 @@ function addVideoTagsToUi(tags) {
     for (tag of tags) {
         const readableTag = makeReadable(tag);
         if (tagIsValid(readableTag) && !(currentTag === readableTag)) {
-            tagsHtml = tagsHtml + "<li><a href='?tag=" + tag + "'>" + readableTag + "</a></li>"
+            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + readableTag + "</a></li>"
         }
     }
     videoTags.innerHTML = tagsHtml;
