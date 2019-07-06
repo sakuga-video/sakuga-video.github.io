@@ -369,7 +369,7 @@ function parseVideoIdFromUrl() {
     return new URLSearchParams(window.location.search).get("video");
 }
 
-function saveTagState(tags) {
+function putTagsInUi(tags) {
     tagText = tags
         .map(tag => makeReadable(tag.name))
         .filter(tag => !tagsToExclude.includes(tag));
@@ -386,9 +386,17 @@ function startPage() {
         history.replaceState({tag: tag}, null);
         input.value = tag;
     }
-    getTags().then(saveTagState).then(() => {
-        play(tag, video);
+    const tagsSavedFuture = getTags().then(tags => {
+        localStorage.setItem("tags", JSON.stringify(tags));
+        putTagsInUi(tags);
     });
+    const cachedTags = JSON.parse(localStorage.getItem("tags"));
+    if (cachedTags) {
+        putTagsInUi(cachedTags);
+        play(tag, video);
+    } else {
+        tagsSavedFuture.then(() => play(tag, video));
+    }
 }
 
 startPage();
