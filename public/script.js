@@ -9,7 +9,7 @@ const fullscreenIcon = document.querySelector('#fullscreen i');
 const input = document.querySelector('input');
 const tagsDatalist = document.querySelector('#tags');
 const videoTags = document.querySelector('#video-tags');
-const tagsToExclude = ["animated", "artist unknown"];
+const tagsToExclude = ["animated", "artist unknown", "presumed"];
 
 const PREVIOUS = 0;
 const CURRENT = 1;
