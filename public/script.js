@@ -24,6 +24,7 @@ var tagText = [];
 var tagCounts = new Map();
 var playlist = [];
 var currentTag = null;
+var skipNextPlayPause = false;
 
 Array.prototype.rotate = function(n) {
     while (this.length && n < 0) n += this.length;
@@ -131,6 +132,10 @@ function toggleControlsOnTouch(event) {
 }
 
 function togglePause() {
+    if (skipNextPlayPause) {
+        skipNextPlayPause = false;
+        return;
+    }
     if (videoPlayers[CURRENT].paused || videoPlayers[CURRENT].ended) {
         videoPlayers[CURRENT].play();
     } else {
@@ -270,6 +275,7 @@ controls.addEventListener('click', event => userActivity = true);
 function removeVideoEventListeners(videoElement) {
     videoElement.removeEventListener('touchstart', toggleControlsOnTouch);
     videoElement.removeEventListener('click', togglePause);
+    videoElement.removeEventListener('mousedown', preventNextPlayPause);
     videoElement.removeEventListener('ended', playNextPreloadedVideo);
     videoElement.removeEventListener('play', showPauseIcon);
     videoElement.removeEventListener('pause', showPlayIcon);
@@ -278,6 +284,7 @@ function removeVideoEventListeners(videoElement) {
 function addVideoEventListeners(videoElement) {
     videoElement.addEventListener('touchstart', toggleControlsOnTouch);
     videoElement.addEventListener('click', togglePause);
+    videoElement.addEventListener('mousedown', preventNextPlayPause);
     videoElement.addEventListener('ended', playNextPreloadedVideo);
     videoElement.addEventListener('play', showPauseIcon);
     videoElement.addEventListener('pause', showPlayIcon);
@@ -339,7 +346,6 @@ input.addEventListener('input', () => {
         playPlaylist(tag, null);
     }
 });
-
 input.addEventListener("keyup", event => {
     if (event.key === "Enter") {
         input.blur();
@@ -348,6 +354,12 @@ input.addEventListener("keyup", event => {
 input.addEventListener("blur", event => {
     hideControls();
 });
+
+function preventNextPlayPause() {
+    if (tagSearchActive()) {
+        skipNextPlayPause = true;
+    }
+}
 
 window.addEventListener("keyup", event => {
     if (event.target === input) {
