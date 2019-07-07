@@ -1,4 +1,3 @@
-const videoPlayer = document.querySelector('video');
 const videoContainer = document.querySelector('#videocontainer');
 const fullscreenButton = document.querySelector('#fullscreen');
 const playpauseButton = document.querySelector('#playpause');
@@ -12,32 +11,47 @@ const tagsDatalist = document.querySelector('#tags');
 const videoTags = document.querySelector('#video-tags');
 const tagsToExclude = ["animated", "artist unknown"];
 
+const PREVIOUS = 0;
+const CURRENT = 1;
+const NEXT = 2;
+
+const videos = document.querySelectorAll('video');
+const videoPlayers = [videos[PREVIOUS], videos[CURRENT], videos[NEXT]];
+const videoData = [null, null, null];
+const videoIndexes = [null, null, null];
+
 var tagText = [];
 var tagCounts = new Map();
 var playlist = [];
-var index = 0;
 var currentTag = null;
 
-function play(tag, video) {
+Array.prototype.rotate = function(n) {
+    while (this.length && n < 0) n += this.length;
+    this.push.apply(this, this.splice(0, n));
+    return this;
+}
+
+function playPlaylist(tag, videoId) {
     currentTag = tag;
     var count;
     if (!tag) {
-        count = 80000;
+        count = 50000;
     } else {
         count = tagCounts.get(tag);
-        if (currentTag !== parseTagFromWindowLocation()) {
-            saveTagToUrl(currentTag);
-        }
+        saveTagToUrl(currentTag);
     }
     playlist = shuffle(Array.from(Array(count).keys())
         .map(n => ++n));
-    index = 0;
 
-    if (video) {
-        playVideo(video);
-    } else {
-        playNextVideo();
-    }
+    videoIndexes[NEXT] = 0;
+
+    const videoDataPromise = videoId ? fetchVideoDataById(videoId) : fetchVideoData(videoIndexes[NEXT], 1);
+    videoDataPromise
+        .then(data => {
+            videoIndexes[NEXT] = data.index;
+            preloadVideo(data.video, NEXT);
+        })
+        .then(playNextPreloadedVideo);
 }
 
 function shuffle(array) {
@@ -59,36 +73,34 @@ function shuffle(array) {
     return array;
 }
 
-function shiftIndex(offset) {
+function shiftIndex(index, offset) {
     // increase or decrease index with wraparound
-    index = (index + offset + playlist.length) % playlist.length;
+    return (index + offset + playlist.length) % playlist.length;
 }
 
-async function loadVideoByOffset(offset) {
-    shiftIndex(offset);
-
+async function fetchVideoData(index, direction) {
     var url = '/api/post.json?limit=1&page=' + playlist[index];
     if (currentTag) {
         url = url + '&tags=' + useUnderscores(currentTag);
     }
 
-    return fetchNextValidVideo(url, offset);
+    return fetchNextValidVideoData(url, index, direction);
 }
 
-async function loadVideo(video) {
-    var url = '/api/post.json?tags=id:' + video.id;
-    return fetchNextValidVideo(url);
+async function fetchVideoDataById(videoId) {
+    var url = '/api/post.json?tags=id:' + videoId;
+    return fetchNextValidVideoData(url, 1, 1);
 }
 
-async function fetchNextValidVideo(url, offset) {
+async function fetchNextValidVideoData(url, index, direction) {
     const response = await fetch(url);
     const videos = await response.json();
     const video = videos[0];
 
     if (videoIsValid(video)) {
-        return video;
+        return {video:video, index:index};
     } else {
-        return loadVideoByOffset(offset);
+        return fetchVideoData(shiftIndex(index, direction), direction);
     }
 }
 
@@ -103,10 +115,6 @@ function tagIsValid(tag) {
     return !tag || tagText.includes(tag)
 }
 
-function playVideo(video) {
-    loadVideo(video).then(playLoadedVideo);
-}
-
 function showPauseIcon() {
     playPauseIcon.innerHTML = "pause";
 }
@@ -115,26 +123,79 @@ function showPlayIcon() {
     playPauseIcon.innerHTML = "play_arrow";
 }
 
-function togglePause() {
-    if (videoPlayer.paused || videoPlayer.ended) {
-        videoPlayer.play();
-    } else {
-        videoPlayer.pause();
+function toggleControlsOnTouch(event) {
+    toggleControls();
+    if (event.target === videoElement) {
+        event.preventDefault();
     }
 }
 
-function playNextVideo() {
-    loadVideoByOffset(1).then(playLoadedVideo);
-}
-function playPreviousVideo() {
-    loadVideoByOffset(-1).then(playLoadedVideo);
+function togglePause() {
+    if (videoPlayers[CURRENT].paused || videoPlayers[CURRENT].ended) {
+        videoPlayers[CURRENT].play();
+    } else {
+        videoPlayers[CURRENT].pause();
+    }
 }
 
-function playLoadedVideo(video) {
-    videoPlayer.src = video.file_url;
-    addVideoTagsToUi(video.tags.split(" "));
-    saveVideoToUrl(video);
-    videoPlayer.play();
+function playNextPreloadedVideo() {
+    playPreloadedVideo(1);
+}
+
+function playPreviousPreloadedVideo() {
+    playPreloadedVideo(-1);
+}
+
+function playPreloadedVideo(direction) {
+    const nextVideoIndexToPreload = CURRENT + direction;
+    const previouslyPlayingVideo = videoPlayers[CURRENT];
+
+    if (videoData[nextVideoIndexToPreload] === null) {
+        return;
+    }
+    videoData.rotate(direction);
+    videoPlayers.rotate(direction);
+    videoIndexes.rotate(direction);
+
+    videoData[nextVideoIndexToPreload] = null;
+    videoIndexes[nextVideoIndexToPreload] = shiftIndex(videoIndexes[CURRENT], direction);
+
+    removeVideoEventListeners(previouslyPlayingVideo);
+    addVideoEventListeners(videoPlayers[CURRENT]);
+
+    removeClass(previouslyPlayingVideo, "active");
+    addClass(videoPlayers[CURRENT], "active");
+
+    previouslyPlayingVideo.pause();
+    previouslyPlayingVideo.currentTime = 0;
+    playVideo();
+    fetchVideoData(videoIndexes[nextVideoIndexToPreload], direction).then(data => {
+        videoIndexes[nextVideoIndexToPreload] = data.index;
+        preloadVideo(data.video, nextVideoIndexToPreload);
+    });
+}
+
+function removeClass(element, cssClass) {
+    if (element.classList.contains(cssClass)) {
+        element.classList.remove(cssClass);
+    }
+}
+
+function addClass(element, cssClass) {
+    if (!element.classList.contains(cssClass)) {
+        element.classList.add(cssClass);
+    }
+}
+
+function preloadVideo(video, index) {
+    videoData[index] = video;
+    videoPlayers[index].src = video.file_url;
+}
+
+function playVideo() {
+    addVideoTagsToUi(videoData[CURRENT].tags.split(" "));
+    saveVideoIdToUrl(videoData[CURRENT]);
+    videoPlayers[CURRENT].play();
 }
 
 function addVideoTagsToUi(tags) {
@@ -189,8 +250,8 @@ document.addEventListener('msfullscreenchange', () =>
 );
 fullscreenButton.addEventListener('click', handleFullscreen);
 playpauseButton.addEventListener('click', togglePause);
-nextButton.addEventListener('click', playNextVideo);
-previousButton.addEventListener('click', playPreviousVideo);
+nextButton.addEventListener('click', playNextPreloadedVideo);
+previousButton.addEventListener('click', playPreviousPreloadedVideo);
 
 videoTags.addEventListener('click', event => {
     const node = event.target
@@ -206,16 +267,21 @@ var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 videoContainer.addEventListener('mousemove', event => userActivity = true);
 controls.addEventListener('click', event => userActivity = true);
 
-videoPlayer.addEventListener('touchstart', function(event) {
-    toggleControls();
-    if (event.target === videoPlayer) {
-        event.preventDefault();
-    }
-});
-videoPlayer.addEventListener('click', togglePause);
-videoPlayer.addEventListener('ended', playNextVideo);
-videoPlayer.addEventListener('play', showPauseIcon);
-videoPlayer.addEventListener('pause', showPlayIcon);
+function removeVideoEventListeners(videoElement) {
+    videoElement.removeEventListener('touchstart', toggleControlsOnTouch);
+    videoElement.removeEventListener('click', togglePause);
+    videoElement.removeEventListener('ended', playNextPreloadedVideo);
+    videoElement.removeEventListener('play', showPauseIcon);
+    videoElement.removeEventListener('pause', showPlayIcon);
+}
+
+function addVideoEventListeners(videoElement) {
+    videoElement.addEventListener('touchstart', toggleControlsOnTouch);
+    videoElement.addEventListener('click', togglePause);
+    videoElement.addEventListener('ended', playNextPreloadedVideo);
+    videoElement.addEventListener('play', showPauseIcon);
+    videoElement.addEventListener('pause', showPlayIcon);
+}
 
 function tagSearchActive() {
     return document.activeElement === input;
@@ -250,6 +316,7 @@ async function getTags() {
     const response = await fetch('/api/tag.json?limit=1500&order=count');
     return await response.json();
 }
+
 function putTagsInForm(tags) {
     var innerString = '';
     for (tag of tags) {
@@ -269,7 +336,7 @@ controls.addEventListener('mouseleave', () => {
 input.addEventListener('input', () => {
     const tag = input.value;
     if (tagIsValid(tag)) {
-        play(tag, null);
+        playPlaylist(tag, null);
     }
 });
 
@@ -287,10 +354,10 @@ window.addEventListener("keyup", event => {
         return;
     }
     if (event.key === "ArrowRight") {
-        playNextVideo();
+        playNextPreloadedVideo();
     }
     if (event.key === "ArrowLeft") {
-        playPreviousVideo();
+        playPreviousPreloadedVideo();
     }
     if (event.key === " ") {
         togglePause();
@@ -303,7 +370,7 @@ window.addEventListener("popstate", event => {
 function setCurrentTag(tag) {
     if (tag && tag !== currentTag) {
         input.value = tag;
-        play(tag, null);
+        playPlaylist(tag, null);
     }
 }
 
@@ -340,10 +407,12 @@ function makeReadable(tag) {
 }
 
 function saveTagToUrl(tag) {
-    history.pushState({tag: tag}, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+    if (tag !== parseTagFromUrl()) {
+        history.pushState({tag: tag}, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+    }
 }
 
-function saveVideoToUrl(video) {
+function saveVideoIdToUrl(video) {
     const tag = new URLSearchParams(window.location.search).get("tag");
     var queryParams = "?video=" + video.id;
     if (tag) {
@@ -352,7 +421,7 @@ function saveVideoToUrl(video) {
     history.replaceState(history.state, tag + " videos", queryParams);
 }
 
-function parseTagFromWindowLocation() {
+function parseTagFromUrl() {
     return parseTagFromQueryParams(window.location.search);
 }
 
@@ -366,7 +435,8 @@ function parseTagFromQueryParams(queryParams) {
 }
 
 function parseVideoIdFromUrl() {
-    return new URLSearchParams(window.location.search).get("video");
+    const videoId = new URLSearchParams(window.location.search).get("video");
+    return videoId ? videoId : null;
 }
 
 function putTagsInUi(tags) {
@@ -380,8 +450,10 @@ function putTagsInUi(tags) {
 }
 
 function startPage() {
-    const tag = parseTagFromWindowLocation();
-    const video = parseVideoIdFromUrl() ? {id: parseVideoIdFromUrl()} : null;
+    addClass(videoPlayers[CURRENT], "active");
+    addVideoEventListeners(videoPlayers[CURRENT]);
+    const tag = parseTagFromUrl();
+    const videoId = parseVideoIdFromUrl();
     if (tag) {
         history.replaceState({tag: tag}, null);
         input.value = tag;
@@ -393,9 +465,9 @@ function startPage() {
     const cachedTags = JSON.parse(localStorage.getItem("tags"));
     if (cachedTags) {
         putTagsInUi(cachedTags);
-        play(tag, video);
+        playPlaylist(tag, videoId);
     } else {
-        tagsSavedFuture.then(() => play(tag, video));
+        tagsSavedFuture.then(() => playPlaylist(tag, videoId));
     }
 }
 

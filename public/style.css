@@ -15,10 +15,15 @@ body {
     justify-content: center;
 }
 video {
-    object-fit: contain;
+    position: fixed;
+    visibility: hidden;
 }
 video::-webkit-media-controls {
     display:none !important;
+}
+video.active {
+    object-fit: contain;
+    visibility: visible;
 }
 #controls {
     z-index: 2147483647;
