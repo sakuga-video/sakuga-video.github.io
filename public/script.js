@@ -126,7 +126,7 @@ function showPlayIcon() {
 
 function toggleControlsOnTouch(event) {
     toggleControls();
-    if (event.target === videoElement) {
+    if (event.target === videoPlayers[CURRENT]) {
         event.preventDefault();
     }
 }
