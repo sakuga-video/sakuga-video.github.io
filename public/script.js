@@ -6,14 +6,17 @@ const previousButton = document.querySelector('#previous');
 const controls = document.querySelector('#controls');
 const playPauseIcon = document.querySelector('#playpause i');
 const fullscreenIcon = document.querySelector('#fullscreen i');
+const muteIcon = document.querySelector('#mute i');
 const input = document.querySelector('input');
 const tagsDatalist = document.querySelector('#tags');
 const videoTags = document.querySelector('#video-tags');
+const muteButton = document.querySelector('#mute');
 const tagsToExclude = ["animated", "artist unknown", "presumed"];
 
 const PREVIOUS = 0;
 const CURRENT = 1;
 const NEXT = 2;
+const PLAYING = 1;
 
 const videos = document.querySelectorAll('video');
 const videoPlayers = [videos[PREVIOUS], videos[CURRENT], videos[NEXT]];
@@ -25,6 +28,8 @@ var tagCounts = new Map();
 var playlist = [];
 var currentTag = null;
 var skipNextPlayPause = false;
+var musicPlayer = null;
+var muted = true;
 
 Array.prototype.rotate = function(n) {
     while (this.length && n < 0) n += this.length;
@@ -131,6 +136,17 @@ function toggleControlsOnTouch(event) {
     }
 }
 
+function toggleMute() {
+    muted = !muted;
+    if (muted) {
+        musicPlayer.pauseVideo();
+        muteIcon.innerHTML = 'volume_off';
+    } else {
+        musicPlayer.playVideo();
+        muteIcon.innerHTML = 'volume_up';
+    }
+}
+
 function togglePause() {
     if (skipNextPlayPause) {
         skipNextPlayPause = false;
@@ -138,8 +154,12 @@ function togglePause() {
     }
     if (videoPlayers[CURRENT].paused || videoPlayers[CURRENT].ended) {
         videoPlayers[CURRENT].play();
+        if (!muted) {
+            musicPlayer.playVideo();
+        }
     } else {
         videoPlayers[CURRENT].pause();
+        musicPlayer.pauseVideo();
     }
 }
 
@@ -205,10 +225,10 @@ function playVideo() {
 
 function addVideoTagsToUi(tags) {
     var tagsHtml = "";
-    for (tag of tags) {
-        const readableTag = makeReadable(tag);
+    for (youtubeScript of tags) {
+        const readableTag = makeReadable(youtubeScript);
         if (tagIsValid(readableTag) && !(currentTag === readableTag)) {
-            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + readableTag + "</a></li>"
+            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + youtubeScript + "\">" + readableTag + "</a></li>"
         }
     }
     videoTags.innerHTML = tagsHtml;
@@ -257,6 +277,7 @@ fullscreenButton.addEventListener('click', handleFullscreen);
 playpauseButton.addEventListener('click', togglePause);
 nextButton.addEventListener('click', playNextPreloadedVideo);
 previousButton.addEventListener('click', playPreviousPreloadedVideo);
+muteButton.addEventListener('click', toggleMute);
 
 videoTags.addEventListener('click', event => {
     const node = event.target
@@ -326,8 +347,8 @@ async function getTags() {
 
 function putTagsInForm(tags) {
     var innerString = '';
-    for (tag of tags) {
-        innerString = innerString + "<option>" + tag + "</option>";
+    for (youtubeScript of tags) {
+        innerString = innerString + "<option>" + youtubeScript + "</option>";
     }
     tagsDatalist.innerHTML = innerString;
 }
@@ -461,7 +482,20 @@ function putTagsInUi(tags) {
     putTagsInForm(tagText);
 }
 
+function setupMusic() {
+    var youtubeScriptTag = document.createElement('script');
+    youtubeScriptTag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(youtubeScriptTag, firstScriptTag);
+}
+
+// required by youtube script
+function onYouTubeIframeAPIReady() {
+    musicPlayer = new YT.Player('youtube-player');
+}
+
 function startPage() {
+    setupMusic();
     addClass(videoPlayers[CURRENT], "active");
     addVideoEventListeners(videoPlayers[CURRENT]);
     const tag = parseTagFromUrl();
