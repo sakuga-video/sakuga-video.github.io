@@ -9,7 +9,10 @@ const fullscreenIcon = document.querySelector('#fullscreen i');
 const muteIcon = document.querySelector('#mute i');
 const input = document.querySelector('input');
 const tagsDatalist = document.querySelector('#tags');
-const videoTags = document.querySelector('#video-tags');
+const generalTagsList = document.querySelector('#general-tags');
+const characterTagsList = document.querySelector('#character-tags');
+const artistTagsList = document.querySelector('#artist-tags');
+const copyrightTagsList = document.querySelector('#copyright-tags');
 const muteButton = document.querySelector('#mute');
 const tagsToExclude = ["animated", "artist_unknown", "presumed"];
 
@@ -17,6 +20,10 @@ const PREVIOUS = 0;
 const CURRENT = 1;
 const NEXT = 2;
 const PLAYING = 1;
+const GENERAL = 0;
+const ARTIST = 1;
+const COPYRIGHT = 3;
+const CHARACTER = 4;
 
 const videos = document.querySelectorAll('video');
 const videoPlayers = [videos[PREVIOUS], videos[CURRENT], videos[NEXT]];
@@ -223,14 +230,35 @@ function playVideo() {
 }
 
 function addVideoTagsToUi(tags) {
+    var tags = tags.map(makeReadable);
+
+    const artistTags = tags.filter(isTagType(ARTIST));
+    const generalTags = tags.filter(isTagType(GENERAL));
+    const copyrightTags = tags.filter(isTagType(COPYRIGHT));
+    const characterTags = tags.filter(isTagType(CHARACTER));
+
+    generalTagsList.innerHTML = generateTagsHtml(generalTags);
+    artistTagsList.innerHTML = generateTagsHtml(artistTags);
+    copyrightTagsList.innerHTML = generateTagsHtml(copyrightTags);
+    characterTagsList.innerHTML = generateTagsHtml(characterTags);
+}
+
+function generateTagsHtml(tags) {
     var tagsHtml = "";
+
     for (tag of tags) {
-        const readableTag = makeReadable(tag);
-        if (tagIsValid(readableTag) && !(currentTag === readableTag)) {
-            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + readableTag + "</a></li>"
+        if (tagIsValid(tag) && !(currentTag === tag)) {
+            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + tag + "</a></li>"
         }
     }
-    videoTags.innerHTML = tagsHtml;
+    return tagsHtml
+}
+
+function isTagType(tagType) {
+    return (tagName) => {
+        const tag = tagsByName.get(tagName);
+        return tag && tag.type === tagType;
+    }
 }
 
 var fullScreenEnabled = !!(document.fullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitSupportsFullscreen || document.webkitFullscreenEnabled || document.createElement('video').webkitRequestFullScreen);
@@ -277,15 +305,19 @@ playpauseButton.addEventListener('click', togglePause);
 nextButton.addEventListener('click', playNextPreloadedVideo);
 previousButton.addEventListener('click', playPreviousPreloadedVideo);
 muteButton.addEventListener('click', toggleMute);
+generalTagsList.addEventListener('click', tagClicked);
+artistTagsList.addEventListener('click', tagClicked);
+copyrightTagsList.addEventListener('click', tagClicked);
+characterTagsList.addEventListener('click', tagClicked);
 
-videoTags.addEventListener('click', event => {
+function tagClicked(event) {
     const node = event.target
     if (node.tagName === "A") {
         event.preventDefault();
         const tag = parseTagFromQueryParams(node.getAttribute("href"));
         setCurrentTag(tag);
     }
-})
+}
 
 var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
