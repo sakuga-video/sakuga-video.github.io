@@ -11,7 +11,7 @@ const input = document.querySelector('input');
 const tagsDatalist = document.querySelector('#tags');
 const videoTags = document.querySelector('#video-tags');
 const muteButton = document.querySelector('#mute');
-const tagsToExclude = ["animated", "artist unknown", "presumed"];
+const tagsToExclude = ["animated", "artist_unknown", "presumed"];
 
 const PREVIOUS = 0;
 const CURRENT = 1;
@@ -23,8 +23,7 @@ const videoPlayers = [videos[PREVIOUS], videos[CURRENT], videos[NEXT]];
 const videoData = [null, null, null];
 const videoIndexes = [null, null, null];
 
-var tagText = [];
-var tagCounts = new Map();
+var tagsByName = new Map();
 var playlist = [];
 var currentTag = null;
 var skipNextPlayPause = false;
@@ -43,7 +42,7 @@ function playPlaylist(tag, videoId) {
     if (!tag) {
         count = 50000;
     } else {
-        count = tagCounts.get(tag);
+        count = tagsByName.get(tag).count;
         saveTagToUrl(currentTag);
     }
     playlist = shuffle(Array.from(Array(count).keys())
@@ -118,7 +117,7 @@ function videoIsValid(video) {
 }
 
 function tagIsValid(tag) {
-    return !tag || tagText.includes(tag)
+    return !tag || tagsByName.has(tag)
 }
 
 function showPauseIcon() {
@@ -225,10 +224,10 @@ function playVideo() {
 
 function addVideoTagsToUi(tags) {
     var tagsHtml = "";
-    for (youtubeScript of tags) {
-        const readableTag = makeReadable(youtubeScript);
+    for (tag of tags) {
+        const readableTag = makeReadable(tag);
         if (tagIsValid(readableTag) && !(currentTag === readableTag)) {
-            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + youtubeScript + "\">" + readableTag + "</a></li>"
+            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + readableTag + "</a></li>"
         }
     }
     videoTags.innerHTML = tagsHtml;
@@ -347,8 +346,8 @@ async function getTags() {
 
 function putTagsInForm(tags) {
     var innerString = '';
-    for (youtubeScript of tags) {
-        innerString = innerString + "<option>" + youtubeScript + "</option>";
+    for (tag of tags) {
+        innerString = innerString + "<option>" + tag + "</option>";
     }
     tagsDatalist.innerHTML = innerString;
 }
@@ -473,13 +472,14 @@ function parseVideoIdFromUrl() {
 }
 
 function putTagsInUi(tags) {
-    tagText = tags
-        .map(tag => makeReadable(tag.name))
-        .filter(tag => !tagsToExclude.includes(tag));
-    tagCounts = new Map(tags
-        .map(tag => [makeReadable(tag.name), tag.count])
-        .filter(tagAndCount => !tagsToExclude.includes(tagAndCount[0])));
-    putTagsInForm(tagText);
+    tagsByName = new Map(tags
+        .filter(shouldIncludeTag)
+        .map(tag => [makeReadable(tag.name), tag]));
+    putTagsInForm(tagsByName.keys());
+}
+
+function shouldIncludeTag(tag) {
+    return !tagsToExclude.includes(tag.name);
 }
 
 function setupMusic() {
