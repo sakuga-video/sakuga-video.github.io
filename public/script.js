@@ -247,7 +247,7 @@ function generateTagsHtml(tags) {
     var tagsHtml = "";
 
     for (tag of tags) {
-        if (tagIsValid(tag) && !(currentTag === tag)) {
+        if (tagIsValid(tag)) {
             tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + tag + "</a></li>"
         }
     }

@@ -10,6 +10,7 @@ body, html, video, #videocontainer {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
 body {
     display: flex;
     align-items: center;
@@ -90,16 +91,19 @@ video.active {
     margin: 0px;
 }
 
-#artist-tags {
-    background: #2F1416;
+#artist-tags::before {
+    content: "artist";
+    color: rgba(255, 255, 255, 0.5);
 }
 
-#copyright-tags {
-    background: #212C2B;
+#copyright-tags::before {
+    color: rgba(255, 255, 255, 0.5);
+    content: "source";
 }
 
-#character-tags {
-    background: #140D11;
+#character-tags::before {
+    color: rgba(255, 255, 255, 0.5);
+    content: "character";
 }
 
 .video-tags:empty {
