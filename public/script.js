@@ -124,7 +124,7 @@ function videoIsValid(video) {
 }
 
 function tagIsValid(tag) {
-    return !tag || tagsByName.has(tag)
+    return tagsByName.has(tag)
 }
 
 function showPauseIcon() {
@@ -248,7 +248,11 @@ function generateTagsHtml(tags) {
 
     for (tag of tags) {
         if (tagIsValid(tag)) {
-            tagsHtml = tagsHtml + "<li><a href=\"?tag=" + tag + "\">" + tag + "</a></li>"
+            tagsHtml = tagsHtml + "<li><a ";
+            if (currentTag === tag) {
+                tagsHtml = tagsHtml + "class=\"current-tag\" ";
+            }
+            tagsHtml = tagsHtml + "href=\"?tag=" + tag + "\">" + tag + "</a></li>"
         }
     }
     return tagsHtml
@@ -315,7 +319,11 @@ function tagClicked(event) {
     if (node.tagName === "A") {
         event.preventDefault();
         const tag = parseTagFromQueryParams(node.getAttribute("href"));
-        setCurrentTag(tag);
+        if (currentTag !== tag) {
+            setCurrentTag(tag);
+        } else {
+            clearCurrentTag();
+        }
     }
 }
 
@@ -405,6 +413,7 @@ input.addEventListener("keyup", event => {
 });
 input.addEventListener("blur", event => {
     hideControls();
+    input.value = "";
 });
 
 function preventNextPlayPause() {
@@ -433,8 +442,13 @@ window.addEventListener("popstate", event => {
 
 function setCurrentTag(tag) {
     if (tag && tag !== currentTag) {
-        input.value = tag;
         playPlaylist(tag, null);
+    }
+}
+
+function clearCurrentTag() {
+    if (currentTag) {
+        playPlaylist(null, null);
     }
 }
 
@@ -534,7 +548,6 @@ function startPage() {
     const videoId = parseVideoIdFromUrl();
     if (tag) {
         history.replaceState({tag: tag}, null);
-        input.value = tag;
     }
     const tagsSavedFuture = getTags().then(tags => {
         localStorage.setItem("tags", JSON.stringify(tags));

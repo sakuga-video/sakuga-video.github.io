@@ -29,7 +29,7 @@ video.active {
 }
 #controls {
     z-index: 2147483647;
-    padding: 0;
+    padding: 14px;
     margin: 0;
     position: fixed;
     background: rgba(2, 2, 2, .7);
@@ -118,6 +118,22 @@ video.active {
 .video-tags a:hover {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0px 0px 5px #fff;
+}
+
+.video-tags .current-tag {
+    text-shadow: 0px 0px 5px #fff;
+}
+
+.video-tags .current-tag::before {
+    content: "➤";
+    position: absolute;
+    text-shadow: 0px 0px 5px #fff;
+    left: 10px;
+    margin-top:1px;
+}
+
+.video-tags .current-tag:hover::before {
+    content: "✕";
 }
 
 input::-webkit-calendar-picker-indicator {
