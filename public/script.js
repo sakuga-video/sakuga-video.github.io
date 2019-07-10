@@ -3,7 +3,8 @@ const fullscreenButton = document.querySelector('#fullscreen');
 const playpauseButton = document.querySelector('#playpause');
 const nextButton = document.querySelector('#next');
 const previousButton = document.querySelector('#previous');
-const controls = document.querySelector('#controls');
+const mainControls = document.querySelector('#main-controls');
+const otherControls = document.querySelector('#other-controls');
 const playPauseIcon = document.querySelector('#playpause i');
 const fullscreenIcon = document.querySelector('#fullscreen i');
 const muteIcon = document.querySelector('#mute i');
@@ -15,6 +16,8 @@ const artistTagsList = document.querySelector('#artist-tags');
 const copyrightTagsList = document.querySelector('#copyright-tags');
 const muteButton = document.querySelector('#mute');
 const tagsToExclude = ["animated", "artist_unknown", "presumed"];
+const questionableContentCheckbox = document.querySelector("#questionable-content");
+const explicitContentButton = document.querySelector("#explicit-content");
 
 const PREVIOUS = 0;
 const CURRENT = 1;
@@ -91,11 +94,11 @@ function shiftIndex(index, offset) {
 }
 
 async function fetchVideoData(index, direction) {
-    var url = '/api/post.json?limit=1&page=' + playlist[index];
+    var url = '/api/post.json?limit=1&page=' + playlist[index] + '&tags=';
     if (currentTag) {
-        url = url + '&tags=' + useUnderscores(currentTag);
+        url = url + useUnderscores(currentTag);
     }
-
+    url = url + explicitUrlFilter();
     return fetchNextValidVideoData(url, index, direction);
 }
 
@@ -121,6 +124,18 @@ function videoIsValid(video) {
             && video.file_url
             && (video.file_ext === "mp4" || video.file_ext === "webm")
             && video.id;
+}
+
+function explicitUrlFilter() {
+    const questionable = questionableContentCheckbox.checked;
+    const explicit = explicitContentButton.checked;
+    if (!questionable && !explicit) {
+        return " rating:safe";
+    } else if (questionable && !explicit) {
+        return " -rating:explicit";
+    } else {
+        return "";
+    }
 }
 
 function tagIsValid(tag) {
@@ -330,7 +345,8 @@ function tagClicked(event) {
 var userActivity, activityCheck, inactivityTimeout, controlsHovered;
 
 videoContainer.addEventListener('mousemove', event => userActivity = true);
-controls.addEventListener('click', event => userActivity = true);
+mainControls.addEventListener('click', event => userActivity = true);
+otherControls.addEventListener('click', event => userActivity = true);
 
 function removeVideoEventListeners(videoElement) {
     videoElement.removeEventListener('touchstart', toggleControlsOnTouch);
@@ -355,7 +371,7 @@ function tagSearchActive() {
 }
 
 function hideControlsTimeout() {
-    return controlsHovered ? 3500 : 500;
+    return controlsHovered ? 3500 : 750;
 }
 
 activityCheck = setInterval(() => {
@@ -392,11 +408,19 @@ function putTagsInForm(tags) {
     tagsDatalist.innerHTML = innerString;
 }
 
-controls.addEventListener('mouseenter', () => {
+mainControls.addEventListener('mouseenter', () => {
     controlsHovered = true;
 });
 
-controls.addEventListener('mouseleave', () => {
+mainControls.addEventListener('mouseleave', () => {
+    controlsHovered = false;
+})
+
+otherControls.addEventListener('mouseenter', () => {
+    controlsHovered = true;
+});
+
+otherControls.addEventListener('mouseleave', () => {
     controlsHovered = false;
 })
 

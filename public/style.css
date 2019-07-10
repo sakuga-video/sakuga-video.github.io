@@ -27,40 +27,44 @@ video.active {
     object-fit: contain;
     visibility: visible;
 }
-#controls {
+.controls {
     z-index: 2147483647;
     padding: 14px;
     margin: 0;
     position: fixed;
     background: rgba(2, 2, 2, .7);
     color: rgba(255, 255, 255, 0.9);
+}
+
+#main-controls {
     bottom: 0%;
     left: 50%;
     transform: translateX(-50%);
 }
-#controls ul#playback-controls {
+
+.controls ul#playback-controls {
     list-style: none;
     padding: 0;
     margin: 0;
     white-space: nowrap;
 }
-#controls ul#playback-controls li {
+.controls ul#playback-controls li {
     display: inline-block;
 }
-#controls button {
+.controls button {
     -moz-appearance: none;
     -webkit-appearance: none;
     background: none;
     border: none;
     outline: none;
 }
-#controls button:hover {
+.controls button:hover {
     text-shadow: 0px 0px 5px #fff;
 }
-#controls button:active {
+.controls button:active {
     text-shadow: 0px 0px 20px #fff;
 }
-#controls input {
+.controls input[list=tags] {
     font: inherit;
     color: inherit;
     background-color: transparent;
@@ -75,14 +79,61 @@ video.active {
     resize: none;
     outline: 0;
 }
-#controls input:focus {
+.controls input:focus {
     background: rgba(0, 0, 0, 0.9);
 }
-#controls input::placeholder,
-#controls input:-ms-input-placeholder,
-#controls input::-ms-input-placeholder {
+.controls input::placeholder,
+.controls input:-ms-input-placeholder,
+.controls input::-ms-input-placeholder {
     color: rgba(255, 255, 255, 0.8);
     opacity: 1; /* Firefox */
+}
+
+#other-controls p {
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.5);
+    user-select: none;
+}
+
+#other-controls #hidden {
+    height: 0px;
+    visibility: hidden;
+    opacity: 0;
+    padding: 0;
+    transition: visibility 0.2s, opacity 0.2s, height 0.2s, padding 0.2s;
+    transition-delay: 0.3s;
+}
+
+#other-controls:hover #hidden{
+    height: 20px;
+    visibility: visible;
+    padding: 14px 0px;
+    opacity: 1;
+    transition-delay: .1s;
+}
+
+#other-controls:hover {
+    height: fit-content;
+    opacity: 1;
+}
+
+label.checkbox {
+    display: block;
+    padding: 0px 14px;
+    text-indent: -14px;
+}
+
+input[type=checkbox] {
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    margin:0;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    *overflow: hidden;
+    opacity: .7;
 }
 
 .video-tags {
@@ -115,9 +166,10 @@ video.active {
     text-decoration: none;
 }
 
-.video-tags a:hover {
+.video-tags a:hover, label.checkbox:hover {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0px 0px 5px #fff;
+    cursor: pointer;
 }
 
 .video-tags .current-tag {
@@ -146,16 +198,11 @@ input::-webkit-calendar-picker-indicator {
 .material-icons.md-light {
     color: rgba(255, 255, 255, 1);
 }
-.fade-out #controls {
+.fade-out .controls {
     display: block;
-    visibility: hidden;
-    opacity: 0;
-
-    -webkit-transition: visibility 0.2s, opacity 0.2s;
-        -moz-transition: visibility 0.2s, opacity 0.2s;
-        -ms-transition: visibility 0.2s, opacity 0.2s;
-        -o-transition: visibility 0.2s, opacity 0.2s;
-            transition: visibility 0.2s, opacity 0.2s;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transition: visibility 0.2s, opacity 0.2s;
 }
 .fade-out {
     cursor: none;
