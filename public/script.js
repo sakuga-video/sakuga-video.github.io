@@ -8,7 +8,7 @@ const otherControls = document.querySelector('#other-controls');
 const playPauseIcon = document.querySelector('#playpause i');
 const fullscreenIcon = document.querySelector('#fullscreen i');
 const muteIcon = document.querySelector('#mute i');
-const input = document.querySelector('input');
+const input = document.querySelector('input[list=tags]');
 const tagsDatalist = document.querySelector('#tags');
 const generalTagsList = document.querySelector('#general-tags');
 const characterTagsList = document.querySelector('#character-tags');
