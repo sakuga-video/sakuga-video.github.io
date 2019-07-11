@@ -330,6 +330,14 @@ var handleFullscreen = function() {
         setFullscreenData(true);
     }
 }
+showTitlesButton.addEventListener('change', () => {
+    if (showTitlesButton.checked) {
+        var tags = videoData[CURRENT].tags.split(" ").map(makeReadable);
+        showTitleBriefly(tags);
+    } else {
+        hideTitle();
+    }
+});
 document.addEventListener('fullscreenchange', (e) =>
     setFullscreenData(!!(document.fullScreen || document.fullscreenElement))
 );
