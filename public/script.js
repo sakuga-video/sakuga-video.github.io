@@ -20,7 +20,9 @@ const questionableContentCheckbox = document.querySelector("#questionable-conten
 const explicitContentButton = document.querySelector("#explicit-content");
 const showTitlesButton = document.querySelector("#show-titles");
 const title = document.querySelector("#title");
+const titleDelaySlider = document.querySelector("#title-delay")
 
+const SHOW_TITLE_DURATION = 2500;
 const PREVIOUS = 0;
 const CURRENT = 1;
 const NEXT = 2;
@@ -41,6 +43,10 @@ var currentTag = null;
 var skipNextPlayPause = false;
 var musicPlayer = null;
 var muted = true;
+var titleDelay = 0;
+
+let hideTitleTimeout;
+let showTitleTimeout;
 
 Array.prototype.rotate = function(n) {
     while (this.length && n < 0) n += this.length;
@@ -243,15 +249,21 @@ function preloadVideo(video, index) {
 
 function playVideo() {
     var tags = videoData[CURRENT].tags.split(" ").map(makeReadable);
-    if (showTitlesButton.checked) {
-        showTitleBriefly(tags);
-    }
+    hideTitle();
+    showTitleAfterDelay(tags);
     addVideoTagsToUi(tags);
     saveVideoIdToUrl(videoData[CURRENT]);
     videoPlayers[CURRENT].play();
 }
 
-let titleTimeout;
+function showTitleAfterDelay(tags) {
+    clearTimeout(showTitleTimeout);
+    if (showTitlesButton.checked) {
+        const longestPossibleDelay = videoPlayers[CURRENT].duration * 1000 - SHOW_TITLE_DURATION;
+        const delayUntilTitle = Math.min(titleDelay * 1000, longestPossibleDelay)
+        showTitleTimeout = setTimeout(() => showTitleBriefly(tags), delayUntilTitle)
+    }
+}
 
 function showTitleBriefly(tags) {
     const titles = tags.filter(isTagType(COPYRIGHT));
@@ -260,11 +272,9 @@ function showTitleBriefly(tags) {
     }
     title.innerHTML = pickBestTitle(titles);
     showTitle();
-    clearTimeout(titleTimeout);
-    titleTimeout = setTimeout(hideTitle, 2500);
+    clearTimeout(hideTitleTimeout);
+    hideTitleTimeout = setTimeout(hideTitle, SHOW_TITLE_DURATION);
 }
-
-
 
 function pickBestTitle(titles) {
     return titles[titles.length - 1];
@@ -334,11 +344,14 @@ var handleFullscreen = function() {
 showTitlesButton.addEventListener('change', () => {
     if (showTitlesButton.checked) {
         var tags = videoData[CURRENT].tags.split(" ").map(makeReadable);
-        showTitleBriefly(tags);
+        showTitleAfterDelay(tags);
     } else {
         hideTitle();
     }
 });
+titleDelaySlider.addEventListener('change', () => {
+    titleDelay = titleDelaySlider.value;
+})
 document.addEventListener('fullscreenchange', (e) =>
     setFullscreenData(!!(document.fullScreen || document.fullscreenElement))
 );

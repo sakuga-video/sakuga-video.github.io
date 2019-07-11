@@ -121,6 +121,11 @@ video.active {
     user-select: none;
 }
 
+#other-controls label, #other-controls div {
+    padding-bottom: 5px;
+    display:block;
+}
+
 #other-controls #hidden {
     height: 0px;
     visibility: hidden;
@@ -131,7 +136,7 @@ video.active {
 }
 
 #other-controls:hover #hidden{
-    height: 34px;
+    height: 96px;
     visibility: visible;
     padding: 14px 0px;
     opacity: 1;
