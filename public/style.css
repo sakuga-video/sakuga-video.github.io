@@ -89,7 +89,20 @@ video.active {
     opacity: 1; /* Firefox */
 }
 
-#other-controls p {
+#about {
+    right: 0;
+}
+
+#about a {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+}
+
+#about a:hover {
+    text-decoration: underline;
+}
+
+#other-controls p, #about p {
     margin: 0;
     padding: 0;
     color: rgba(255, 255, 255, 0.5);
@@ -166,7 +179,7 @@ input[type=checkbox] {
     text-decoration: none;
 }
 
-.video-tags a:hover, label.checkbox:hover {
+.video-tags a:hover, label.checkbox:hover, #about a:hover {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0px 0px 5px #fff;
     cursor: pointer;
