@@ -55,8 +55,9 @@ function playPlaylist(tag, videoId) {
         count = 50000;
     } else {
         count = tagsByName.get(tag).count;
-        saveTagToUrl(currentTag);
     }
+    saveTagToUrl(currentTag);
+
     playlist = shuffle(Array.from(Array(count).keys())
         .map(n => ++n));
 
@@ -557,7 +558,11 @@ function makeReadable(tag) {
 
 function saveTagToUrl(tag) {
     if (tag !== parseTagFromUrl()) {
-        history.pushState({tag: tag}, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+        if (tag) {
+            history.pushState({tag: tag}, tag + " videos", "?tag=" + encodeURIComponent(useUnderscores(tag)))
+        } else {
+            history.pushState({tag: tag}, "All videos", "./");
+        }
     }
 }
 
