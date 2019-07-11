@@ -18,6 +18,8 @@ const muteButton = document.querySelector('#mute');
 const tagsToExclude = ["animated", "artist_unknown", "presumed"];
 const questionableContentCheckbox = document.querySelector("#questionable-content");
 const explicitContentButton = document.querySelector("#explicit-content");
+const showTitlesButton = document.querySelector("#show-titles");
+const title = document.querySelector("#title");
 
 const PREVIOUS = 0;
 const CURRENT = 1;
@@ -239,14 +241,35 @@ function preloadVideo(video, index) {
 }
 
 function playVideo() {
-    addVideoTagsToUi(videoData[CURRENT].tags.split(" "));
+    var tags = videoData[CURRENT].tags.split(" ").map(makeReadable);
+    if (showTitlesButton.checked) {
+        showTitleBriefly(tags);
+    }
+    addVideoTagsToUi(tags);
     saveVideoIdToUrl(videoData[CURRENT]);
     videoPlayers[CURRENT].play();
 }
 
-function addVideoTagsToUi(tags) {
-    var tags = tags.map(makeReadable);
+let titleTimeout;
 
+function showTitleBriefly(tags) {
+    const titles = tags.filter(isTagType(COPYRIGHT));
+    if (titles.length === 0) {
+        titles.push("unknown");
+    }
+    title.innerHTML = pickBestTitle(titles);
+    showTitle();
+    clearTimeout(titleTimeout);
+    titleTimeout = setTimeout(hideTitle, 2500);
+}
+
+
+
+function pickBestTitle(titles) {
+    return titles[titles.length - 1];
+}
+
+function addVideoTagsToUi(tags) {
     const artistTags = tags.filter(isTagType(ARTIST));
     const generalTags = tags.filter(isTagType(GENERAL));
     const copyrightTags = tags.filter(isTagType(COPYRIGHT));
@@ -486,6 +509,22 @@ function toggleControls() {
 
 function controlsHidden() {
     return videoContainer.classList.contains('fade-out');
+}
+
+function titleHidden() {
+    return title.classList.contains('fade-out');
+}
+
+function showTitle() {
+    if (titleHidden()) {
+        title.classList.remove('fade-out');
+    }
+}
+
+function hideTitle() {
+    if (!titleHidden()) {
+        title.classList.add('fade-out');
+    }
 }
 
 function showControls() {

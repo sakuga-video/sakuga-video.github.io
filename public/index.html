@@ -22,6 +22,10 @@
             <p>options</p>
             <div id="hidden">
                 <label class="checkbox">
+                    <input type="checkbox" name="show-titles" id="show-titles">
+                    Show titles
+                </label>
+                <label class="checkbox">
                     <input type="checkbox" name="content-filter" id="questionable-content">
                     Allow questionable content
                 </label>
@@ -34,6 +38,9 @@
         <div id="about" class="controls">
             <p><a href="about.html">about</a></p>
         </div>
+        
+        <p id="title" class="fade-out"></p>
+        
         <div id="main-controls" class="controls">
             <input list="tags" autocomplete="off" placeholder="Search for other themes">
             <datalist id="tags"></datalist>

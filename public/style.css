@@ -27,6 +27,18 @@ video.active {
     object-fit: contain;
     visibility: visible;
 }
+
+#title {
+    background: rgba(2, 2, 2, .7);
+    color: rgba(255, 255, 255, 0.9);
+    position:fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    margin:0;
+    padding:14px;
+    font-size: 4em;
+}
+
 .controls {
     z-index: 2147483647;
     padding: 14px;
@@ -119,7 +131,7 @@ video.active {
 }
 
 #other-controls:hover #hidden{
-    height: 20px;
+    height: 34px;
     visibility: visible;
     padding: 14px 0px;
     opacity: 1;
@@ -211,7 +223,7 @@ input::-webkit-calendar-picker-indicator {
 .material-icons.md-light {
     color: rgba(255, 255, 255, 1);
 }
-.fade-out .controls {
+.fade-out .controls, #title.fade-out {
     display: block;
     visibility: hidden !important;
     opacity: 0 !important;
