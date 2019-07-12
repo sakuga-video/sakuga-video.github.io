@@ -16,7 +16,7 @@ const artistTagsList = document.querySelector('#artist-tags');
 const copyrightTagsList = document.querySelector('#copyright-tags');
 const muteButton = document.querySelector('#mute');
 const tagsToExclude = ["animated", "artist_unknown", "presumed"];
-const questionableContentCheckbox = document.querySelector("#questionable-content");
+const questionableContentButton = document.querySelector("#questionable-content");
 const explicitContentButton = document.querySelector("#explicit-content");
 const showTitlesButton = document.querySelector("#show-titles");
 const title = document.querySelector("#title");
@@ -43,7 +43,12 @@ var currentTag = null;
 var skipNextPlayPause = false;
 var musicPlayer = null;
 var muted = true;
-var titleDelay = 0;
+let options = {
+    "show-titles": false,
+    "title-delay": 0,
+    "questionable-content": false,
+    "explicit-content": false
+}
 
 let hideTitleTimeout;
 let showTitleTimeout;
@@ -136,7 +141,7 @@ function videoIsValid(video) {
 }
 
 function explicitUrlFilter() {
-    const questionable = questionableContentCheckbox.checked;
+    const questionable = questionableContentButton.checked;
     const explicit = explicitContentButton.checked;
     if (!questionable && !explicit) {
         return " rating:safe";
@@ -260,7 +265,7 @@ function showTitleAfterDelay(tags) {
     clearTimeout(showTitleTimeout);
     if (showTitlesButton.checked) {
         const longestPossibleDelay = videoPlayers[CURRENT].duration * 1000 - SHOW_TITLE_DURATION;
-        const delayUntilTitle = Math.min(titleDelay * 1000, longestPossibleDelay)
+        const delayUntilTitle = Math.min(options["title-delay"] * 1000, longestPossibleDelay)
         showTitleTimeout = setTimeout(() => showTitleBriefly(tags), delayUntilTitle)
     }
 }
@@ -341,16 +346,31 @@ var handleFullscreen = function() {
         setFullscreenData(true);
     }
 }
+function saveOptions(options) {
+    localStorage.setItem("options", JSON.stringify(options));
+}
+explicitContentButton.addEventListener('change', () => {
+    options["explicit-content"] = explicitContentButton.checked;
+    saveOptions(options);
+})
+questionableContentButton.addEventListener('change', () => {
+    options["questionable-content"] = questionableContentButton.checked;
+    saveOptions(options);
+})
 showTitlesButton.addEventListener('change', () => {
     if (showTitlesButton.checked) {
+        options["show-titles"] = true;
         var tags = videoData[CURRENT].tags.split(" ").map(makeReadable);
         showTitleAfterDelay(tags);
     } else {
+        options["show-titles"] = false;
         hideTitle();
     }
+    saveOptions(options);
 });
 titleDelaySlider.addEventListener('change', () => {
-    titleDelay = titleDelaySlider.value;
+    options["title-delay"] = titleDelaySlider.value;
+    saveOptions(options);
 })
 document.addEventListener('fullscreenchange', (e) =>
     setFullscreenData(!!(document.fullScreen || document.fullscreenElement))
@@ -643,6 +663,11 @@ function startPage() {
         putTagsInUi(tags);
     });
     const cachedTags = JSON.parse(localStorage.getItem("tags"));
+    options = JSON.parse(localStorage.getItem("options")) || options;
+    showTitlesButton.checked = options["show-titles"];
+    questionableContentButton.checked = options["questionable-content"];
+    explicitContentButton.checked = options["explicit-content"];
+    titleDelaySlider.value = options["title-delay"];
     if (cachedTags) {
         putTagsInUi(cachedTags);
         playPlaylist(tag, videoId);
