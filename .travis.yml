@@ -1,6 +1,8 @@
 language: node_js
 deploy:
-  provider: heroku
-  api_key:
-    secure: W3ajOHbt+D97HmuW/UOjrcLWw3A2ibq8IefUqesZkDlwH1nCFOmfTxEojK5g5oEiYprTm6VjNztFDHXrtDzsPCp2Mh5JIvTV69M/XEuugfinhF+tVny9THyXJcLXdkO66H/0Y0wXHkc77OdjBdU9laLXFYBKEmHwMqHqcGusxdw6QhnAuNM4UoJn6ueon0BM6FlZLSbCcLmJ/84HnWwmmlq9AkCJApddX9cegleyKDGwHDTOi1d/OYUzqS44RnZac+DCMZm4weLZ2vKVosAeEQxa2v7aQtA/8zRwTt5RZOWx5B8zd/qDsFi/wpui4wpr5U0DNayj8HCGrBAbf6YkYE22WE2kWg6olKVBVRqYknjKGaLWrLGSovI4x/8w71IwJqwueq4AmMUK0WsNU+MSc738VYJFjocAqTQahFePQEsv9LJyB0obaiFrKOWSfoqGr8MX+4p0AsTuBwj05UMjkSmsA2Xa4wkfgNm5RPO7URWs12CV+pEEmWRuyhsnHxUM3pjuV7/AnxhYZQ9823BuO8xUfCO9icMmYzf0g26aiSh5kqzeh/3u5zOkQq14od57sSdqEqii2KNYDLXSZXjFLLH4hFUYRGUY1tD/EFl/tvlHjEpOd+ipLOJRvhp82CUfHbLaXPQLY2Mzm52E/rC8CYFZLUEghKDTS9Jo6KX7EdI=
-  app: sakuga-video
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  on:
+    branch: master
+  local_dir: public
