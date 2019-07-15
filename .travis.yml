@@ -6,3 +6,4 @@ deploy:
   on:
     branch: master
   local_dir: public
+  fqdn: sakuga.video
