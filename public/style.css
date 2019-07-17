@@ -56,6 +56,25 @@ video.active {
     transform: translateX(-50%);
 }
 
+#main-controls #donate {
+    margin: 11px 14px;
+}
+
+#main-controls #donate a{
+    color: #30BCED;
+    text-decoration: none;
+    background: rgba(50, 50, 50, 0.9);
+    padding: 11px;
+    display: block;
+    text-align: center;
+    transition: background-color 0.2s 0.1s, color 0.2s 0.1s;
+}
+
+#main-controls #donate a:hover {
+    background:#30BCED;
+    color: rgba(50, 50, 50, 0.9);
+}
+
 .controls ul#playback-controls {
     list-style: none;
     padding: 0;
@@ -65,6 +84,7 @@ video.active {
 .controls ul#playback-controls li {
     display: inline-block;
 }
+
 .controls button {
     -moz-appearance: none;
     -webkit-appearance: none;
