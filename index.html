@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+    <title>Sakuga Video: A Showcase of Beautiful Animation</title>
+    <meta name="description" content="Watch an endless stream of beautiful anime and western animation clips and discover artists and shows you've never seen before.">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-143412573-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-143412573-1');
+    </script>
+</head>
+<body>
+    <div id="videocontainer" class="fade-out">
+        <video muted preload="auto"></video>
+        <video muted preload="auto"></video>
+        <video muted preload="auto"></video>
+        <div id="other-controls" class="controls">
+            <p>options</p>
+            <div id="hidden">
+                <label class="checkbox">
+                    <input type="checkbox" name="show-titles" id="show-titles">
+                    Show titles
+                </label>
+                <label for="title-delay">Delay before showing
+                <div>
+                0s <input type="range" min="0" max="10" value="0" class="slider" id="title-delay"> 10s
+                </div>
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="content-filter" id="questionable-content">
+                    Allow questionable content
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" name="content-filter" id="explicit-content">
+                    Allow explicit content
+                </label>
+            </div>
+        </div>
+        <div id="about" class="controls">
+            <p><a href="about.html">about</a></p>
+        </div>
+        
+        <p id="title" class="fade-out"></p>
+        
+        <div id="main-controls" class="controls">
+            <input list="tags" autocomplete="off" placeholder="Search for other themes">
+            <datalist id="tags"></datalist>
+            <ul id="copyright-tags" class="video-tags"></ul>
+            <ul id="artist-tags" class="video-tags"></ul>
+            <ul id="character-tags" class="video-tags"></ul>
+            <ul id="general-tags" class="video-tags"></ul>
+
+            <p id="donate"><a href="https://www.patreon.com/Sakugabooru">donate to sakugabooru</a></p>
+            
+            <ul id="playback-controls">
+                <li><button id="previous" type="button"><i class="material-icons md-light md-48">skip_previous</i></button></li>
+                <li><button id="playpause" type="button"><i class="material-icons md-light md-48">pause</i></button></li>
+                <li><button id="next" type="button"><i class="material-icons md-light md-48">skip_next</i></button></li>
+                <li><button id="mute" type="button"><i class="material-icons md-light md-48">volume_off</i></button></li>
+                <li><button id="fullscreen" type="button"><i class="material-icons md-light md-48">fullscreen</i></button></li>
+            </ul>
+        </div>
+    </div>
+    <iframe id="youtube-player" width="0" height="0" src="https://www.youtube.com/embed/hHW1oY26kxQ?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    <script src="script.js"></script>
+</body>
+</html>
