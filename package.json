@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cypressf/animatedgif.video-backend.git"
+    "url": "git+https://github.com/sakuga-video/sakuga-video.github.io.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cypressf/animatedgif.video-backend/issues"
+    "url": "https://github.com/sakuga-video/sakuga-video.github.io/issues"
   },
-  "homepage": "https://github.com/cypressf/animatedgif.video-backend#readme",
+  "homepage": "https://github.com/sakuga-video/sakuga-video.github.io#readme",
   "engines": {
     "node": "12.4.0"
   }
